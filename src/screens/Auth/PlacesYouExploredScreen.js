@@ -7,11 +7,12 @@ import {
   TouchableOpacity,
   Image,
   StyleSheet,
+  useWindowDimensions,
 } from "react-native";
 import BaseStepScreen from "./BaseStepScreen";
 import SearchIcon from "../../assets/icons/search.svg";
 
-// 🔥 Import local images
+// Local images
 import Gujarat from "../../assets/images/places/gujrat.jpg";
 import Goa from "../../assets/images/places/goa.jpg";
 import Kashmir from "../../assets/images/places/kashmir.jpg";
@@ -25,7 +26,11 @@ export default function PlacesYouExploredScreen({ navigation }) {
   const [selected, setSelected] = useState([]);
   const [search, setSearch] = useState("");
 
-  // 🔥 Local image list
+  const { width } = useWindowDimensions();
+  const cardWidth = (width - 50) / 2.2; // dynamic 2-column responsive layout
+  const cardHeight = cardWidth * 0.45;
+  const borderRadius = cardWidth * 0.22;
+
   const places = [
     { name: "Gujarat", img: Gujarat },
     { name: "Goa", img: Goa },
@@ -42,11 +47,9 @@ export default function PlacesYouExploredScreen({ navigation }) {
   );
 
   const toggleSelect = (city) => {
-    if (selected.includes(city)) {
-      setSelected(selected.filter((c) => c !== city));
-    } else {
-      setSelected([...selected, city]);
-    }
+    selected.includes(city)
+      ? setSelected(selected.filter((c) => c !== city))
+      : setSelected([...selected, city]);
   };
 
   const handleNext = () => {
@@ -74,21 +77,49 @@ export default function PlacesYouExploredScreen({ navigation }) {
         />
       </View>
 
-      {/* Places Grid */}
+      {/* Responsive Grid */}
       <View style={styles.grid}>
         {filtered.map((item, index) => {
           const isSelected = selected.includes(item.name);
+
           return (
             <TouchableOpacity
               key={index}
-              style={[styles.placeCard, isSelected && styles.selectedCard]}
-              onPress={() => toggleSelect(item.name)}
+              style={[
+                {
+                  width: cardWidth,
+                  height: cardHeight,
+                  borderRadius,
+                },
+                styles.placeCard,
+                isSelected && styles.selectedCard,
+              ]}
+              onPress={()=> toggleSelect(item.name)}
             >
-              <Image source={item.img} style={styles.placeImg} />
+              <Image
+                source={item.img}
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  borderRadius,
+                }}
+              />
 
-              <View style={styles.overlay} />
+              <View
+                style={[
+                  styles.overlay,
+                  { borderRadius },
+                ]}
+              />
 
-              <Text style={styles.placeText}>{item.name}</Text>
+              <Text
+                style={[
+                  styles.placeText,
+                  { fontSize: width * 0.045 },
+                ]}
+              >
+                {item.name}
+              </Text>
             </TouchableOpacity>
           );
         })}
@@ -116,9 +147,6 @@ const styles = StyleSheet.create({
   },
 
   placeCard: {
-    width: "48%",
-    height: 90,
-    borderRadius: 45,
     overflow: "hidden",
     marginBottom: 18,
     justifyContent: "center",
@@ -134,24 +162,16 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
   },
 
-  placeImg: {
-    width: "100%",
-    height: "100%",
-    borderRadius: 45,
-  },
-
   overlay: {
     position: "absolute",
     width: "100%",
     height: "100%",
     backgroundColor: "rgba(0,0,0,0.25)",
-    borderRadius: 45,
   },
 
   placeText: {
     position: "absolute",
     color: "#fff",
-    fontWeight: "600",
-    fontSize: 16,
+    fontWeight: "700",
   },
 });

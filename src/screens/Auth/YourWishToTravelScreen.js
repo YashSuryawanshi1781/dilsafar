@@ -7,11 +7,11 @@ import {
   TouchableOpacity,
   Image,
   StyleSheet,
+  useWindowDimensions,
 } from "react-native";
 import BaseStepScreen from "./BaseStepScreen";
-import SearchIcon from '../../assets/icons/search.svg';
+import SearchIcon from "../../assets/icons/search.svg";
 
-// Import all local images
 const placeImages = {
   Gujarat: require("../../assets/images/places/gujrat.jpg"),
   Goa: require("../../assets/images/places/goa.jpg"),
@@ -27,6 +27,13 @@ export default function YourWishToTravelScreen({ navigation }) {
   const [selected, setSelected] = useState([]);
   const [search, setSearch] = useState("");
 
+  const { width } = useWindowDimensions();
+
+  // ⭐ SAME RESPONSIVE LOGIC AS PlacesYouExploredScreen
+  const cardWidth = (width - 50) / 2.2;
+  const cardHeight = cardWidth * 0.45;
+  const borderRadius = cardWidth * 0.22;
+
   const places = [
     { name: "Gujarat", img: placeImages.Gujarat },
     { name: "Goa", img: placeImages.Goa },
@@ -38,22 +45,17 @@ export default function YourWishToTravelScreen({ navigation }) {
     { name: "Rajasthan", img: placeImages.Rajasthan },
   ];
 
-  const filtered = places.filter((p) =>
-    p.name.toLowerCase().includes(search.toLowerCase())
+  const filtered = places.filter((item) =>
+    item.name.toLowerCase().includes(search.toLowerCase())
   );
 
   const toggleSelect = (place) => {
-    setSelected((prev) => {
-      if (prev.includes(place)) {
-        return prev.filter((c) => c !== place);
-      } else {
-        return [...prev, place];
-      }
-    });
+    selected.includes(place)
+      ? setSelected(selected.filter((x) => x !== place))
+      : setSelected([...selected, place]);
   };
 
   const handleNext = () => {
-    console.log("Selected places:", selected);
     navigation.navigate("BioScreen");
   };
 
@@ -78,7 +80,7 @@ export default function YourWishToTravelScreen({ navigation }) {
         />
       </View>
 
-      {/* Places Grid */}
+      {/* Responsive Grid */}
       <View style={styles.grid}>
         {filtered.map((item, index) => {
           const isSelected = selected.includes(item.name);
@@ -86,12 +88,31 @@ export default function YourWishToTravelScreen({ navigation }) {
           return (
             <TouchableOpacity
               key={index}
-              style={[styles.placeCard, isSelected && styles.selectedCard]}
+              style={[
+                {
+                  width: cardWidth,
+                  height: cardHeight,
+                  borderRadius,
+                },
+                styles.placeCard,
+                isSelected && styles.selectedCard,
+              ]}
               onPress={() => toggleSelect(item.name)}
             >
-              <Image source={item.img} style={styles.placeImg} />
-              <View style={styles.overlay} />
-              <Text style={styles.placeText}>{item.name}</Text>
+              <Image
+                source={item.img}
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  borderRadius,
+                }}
+              />
+
+              <View style={[styles.overlay, { borderRadius }]} />
+
+              <Text style={[styles.placeText, { fontSize: width * 0.045 }]}>
+                {item.name}
+              </Text>
             </TouchableOpacity>
           );
         })}
@@ -111,20 +132,20 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     width: "100%",
   },
+
   grid: {
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-between",
   },
+
   placeCard: {
-    width: "48%",
-    height: 80,
-    borderRadius: 40,
     overflow: "hidden",
-    marginBottom: 16,
+    marginBottom: 18,
     justifyContent: "center",
     alignItems: "center",
   },
+
   selectedCard: {
     borderWidth: 3,
     borderColor: "#A04DFF",
@@ -133,22 +154,17 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.4,
     shadowRadius: 4,
   },
-  placeImg: {
-    width: "100%",
-    height: "100%",
-    borderRadius: 40,
-  },
+
   overlay: {
     position: "absolute",
     width: "100%",
     height: "100%",
     backgroundColor: "rgba(0,0,0,0.25)",
-    borderRadius: 40,
   },
+
   placeText: {
     position: "absolute",
     color: "#fff",
-    fontWeight: "600",
-    fontSize: 15,
+    fontWeight: "700",
   },
 });
