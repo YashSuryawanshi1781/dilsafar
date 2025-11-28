@@ -318,7 +318,7 @@ const styles = StyleSheet.create({
   },
   primaryCtaPillText: {
     color: "#F9FAFB",
-    fontSize: 12,
+    fontSize: 8,
     fontFamily: "Poppins_600SemiBold",
   },
 

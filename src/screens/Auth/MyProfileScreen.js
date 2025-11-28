@@ -10,7 +10,7 @@ import {
     Dimensions
 } from "react-native";
 
-import LinearGradient from "react-native-linear-gradient"; // ADD THIS
+import LinearGradient from "react-native-linear-gradient";
 
 // SVG Icons
 import SettingsIcon from "../../assets/icons/setting.svg";
@@ -31,7 +31,6 @@ export default function MyProfileScreen({ navigation }) {
             colors={["#FFFFFFAA", "#FFFFFF"]}
             style={styles.planCard}
         >
-            {/* Tag */}
             <View
                 style={[
                     styles.planTag,
@@ -48,7 +47,6 @@ export default function MyProfileScreen({ navigation }) {
                 </Text>
             </View>
 
-            {/* Plan Info */}
             <View style={{ marginBottom: 12 }}>
                 <Text style={styles.planLabel}>{item.label}</Text>
                 <Text style={styles.planPrice}>
@@ -57,7 +55,6 @@ export default function MyProfileScreen({ navigation }) {
                 </Text>
             </View>
 
-            {/* Upgrade Button */}
             <TouchableOpacity style={styles.upgradeButton}>
                 <Text style={styles.upgradeText}>Upgrade</Text>
             </TouchableOpacity>
@@ -77,8 +74,8 @@ export default function MyProfileScreen({ navigation }) {
                     style={styles.logoImage}
                     resizeMode="contain"
                 />
-                <TouchableOpacity>
-                    <SettingsIcon width={28} height={28} fill="#fff" />
+                <TouchableOpacity style={styles.settingsIconWrapper}>
+                    <SettingsIcon width={40} height={40} fill="#fff" />
                 </TouchableOpacity>
             </LinearGradient>
 
@@ -147,7 +144,8 @@ const styles = StyleSheet.create({
         elevation: 4,
         shadowColor: "#6A2BFF",
     },
-    logoImage: { width: 150, height: 40 },
+    logoImage: { width: 150, height: 40, marginBottom: 50 }, // Added margin for gap
+    settingsIconWrapper: { width: 50, height: 50, justifyContent: "center", alignItems: "center" },
 
     profileWrapper: { alignItems: "center", marginTop: -50 },
     profileCircle: {
