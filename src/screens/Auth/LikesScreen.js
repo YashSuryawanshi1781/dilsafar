@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   View,
   Text,
@@ -6,10 +6,16 @@ import {
   TouchableOpacity,
   Image,
   FlatList,
+  Animated,
 } from "react-native";
 import LikeIcon from "../../assets/images/like.svg";
 
 export default function LikesScreen({ navigation }) {
+  const [loading, setLoading] = useState(true);
+
+  // FIX: fadeAnim must be stored using useRef, not recreated every render
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+
   const likedUsers = [
     {
       id: "1",
@@ -37,29 +43,66 @@ export default function LikesScreen({ navigation }) {
     },
   ];
 
-  const renderUser = ({ item }) => (
+  /* ------------------------ SKELETON TIMER ------------------------ */
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false);
+
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 350,
+        useNativeDriver: true,
+      }).start();
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  /* ------------------------ SKELETON CARD ------------------------ */
+  const SkeletonCard = () => (
     <View style={styles.card}>
-      <Image source={{ uri: item.image }} style={styles.avatar} />
+      <View style={styles.skeletonAvatar} />
 
-      <View style={styles.info}>
-        <Text style={styles.name}>
-          {item.name}, <Text style={styles.age}>{item.age}</Text>
-        </Text>
-
-        <Text style={styles.location}>{item.location}</Text>
+      <View style={{ flex: 1 }}>
+        <View style={styles.skeletonLineLarge} />
+        <View style={styles.skeletonLineSmall} />
       </View>
 
-      {/* Like icon */}
-      <LikeIcon width={26} height={26} />
+      <View style={styles.skeletonIcon} />
     </View>
+  );
+
+  /* ------------------------ REAL USER CARD ------------------------ */
+  const renderUser = ({ item }) => (
+    <Animated.View style={{ opacity: fadeAnim }}>
+      <View style={styles.card}>
+        <Image source={{ uri: item.image }} style={styles.avatar} />
+
+        <View style={styles.info}>
+          <Text style={styles.name}>
+            {item.name}, <Text style={styles.age}>{item.age}</Text>
+          </Text>
+
+          <Text style={styles.location}>{item.location}</Text>
+        </View>
+
+        <LikeIcon width={26} height={26} />
+      </View>
+    </Animated.View>
   );
 
   return (
     <View style={styles.container}>
       <Text style={styles.header}>Likes</Text>
 
-      {/* If Likes Exist */}
-      {likedUsers.length > 0 ? (
+      {/* ----------------------- LOADING SKELETON ----------------------- */}
+      {loading ? (
+        <>
+          <SkeletonCard />
+          <SkeletonCard />
+          <SkeletonCard />
+        </>
+      ) : likedUsers.length > 0 ? (
         <FlatList
           data={likedUsers}
           renderItem={renderUser}
@@ -68,6 +111,7 @@ export default function LikesScreen({ navigation }) {
           contentContainerStyle={{ paddingBottom: 40 }}
         />
       ) : (
+        /* ----------------------- EMPTY STATE ----------------------- */
         <View style={styles.emptyState}>
           <LikeIcon width={55} height={55} style={styles.likeIcon} />
 
@@ -89,6 +133,10 @@ export default function LikesScreen({ navigation }) {
   );
 }
 
+/* ------------------------------------------------------- */
+/* -------------------------- STYLES ---------------------- */
+/* ------------------------------------------------------- */
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -104,7 +152,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
 
-  /* ---------- CARD ---------- */
+  /* ----------------------- CARD ------------------------ */
   card: {
     flexDirection: "row",
     backgroundColor: "#fff",
@@ -145,24 +193,42 @@ const styles = StyleSheet.create({
     color: "#6A2BFF",
   },
 
-  /* ---------- EMPTY STATE ---------- */
+  /* ----------------------- SKELETON ------------------------ */
+  skeletonAvatar: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: "#E0E0E0",
+    marginRight: 14,
+  },
+
+  skeletonLineLarge: {
+    width: "60%",
+    height: 16,
+    backgroundColor: "#E0E0E0",
+    borderRadius: 6,
+    marginBottom: 8,
+  },
+
+  skeletonLineSmall: {
+    width: "40%",
+    height: 14,
+    backgroundColor: "#E0E0E0",
+    borderRadius: 6,
+  },
+
+  skeletonIcon: {
+    width: 26,
+    height: 26,
+    borderRadius: 6,
+    backgroundColor: "#E0E0E0",
+  },
+
+  /* -------------------- EMPTY STATE ---------------------- */
   emptyState: {
     justifyContent: "center",
     alignItems: "center",
     marginTop: 60,
-  },
-
-  illustration: {
-    width: 220,
-    height: 220,
-    opacity: 0.8,
-    marginBottom: 25,
-  },
-
-  likeIcon: {
-    position: "absolute",
-    right: 10,
-    bottom: 20,
   },
 
   title: {

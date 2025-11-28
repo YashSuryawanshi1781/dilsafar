@@ -8,7 +8,9 @@ import {
   Image,
   StyleSheet,
   useWindowDimensions,
+  FlatList,
 } from "react-native";
+
 import BaseStepScreen from "./BaseStepScreen";
 import SearchIcon from "../../assets/icons/search.svg";
 
@@ -25,13 +27,17 @@ import Rajasthan from "../../assets/images/places/rajasthan.jpg";
 export default function PlacesYouExploredScreen({ navigation }) {
   const [selected, setSelected] = useState([]);
   const [search, setSearch] = useState("");
+  const [suggestions, setSuggestions] = useState([]);
+
+  const GOOGLE_API_KEY = "AIzaSyCcRhBaB3nT_NcBXklHECienWkIQ-n83-g";
 
   const { width } = useWindowDimensions();
-  const cardWidth = (width - 50) / 2.2; // dynamic 2-column responsive layout
+  const cardWidth = (width - 50) / 2.2;
   const cardHeight = cardWidth * 0.45;
   const borderRadius = cardWidth * 0.22;
 
-  const places = [
+  // Static places
+  const [places, setPlaces] = useState([
     { name: "Gujarat", img: Gujarat },
     { name: "Goa", img: Goa },
     { name: "Kashmir", img: Kashmir },
@@ -40,16 +46,53 @@ export default function PlacesYouExploredScreen({ navigation }) {
     { name: "Sikkim", img: Sikkim },
     { name: "Manali", img: Manali },
     { name: "Rajasthan", img: Rajasthan },
-  ];
+  ]);
 
-  const filtered = places.filter((item) =>
-    item.name.toLowerCase().includes(search.toLowerCase())
-  );
+  // Fetch Google Places suggestions
+  const fetchPlaces = async (text) => {
+    if (!text) {
+      setSuggestions([]);
+      return;
+    }
+
+    try {
+      const url = `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${text}&types=(cities)&key=${GOOGLE_API_KEY}`;
+      const response = await fetch(url);
+      const json = await response.json();
+
+      if (json?.predictions) {
+        setSuggestions(json.predictions);
+      }
+    } catch (err) {
+      console.log("Places API Error:", err);
+    }
+  };
+
+  const handleSearchChange = (text) => {
+    setSearch(text);
+    fetchPlaces(text);
+  };
 
   const toggleSelect = (city) => {
     selected.includes(city)
       ? setSelected(selected.filter((c) => c !== city))
       : setSelected([...selected, city]);
+  };
+
+  const handleSearchSubmit = () => {
+    if (!search.trim()) return;
+
+    const exists = places.some(
+      (p) => p.name.toLowerCase() === search.toLowerCase()
+    );
+
+    if (!exists) {
+      setPlaces([...places, { name: search, img: null }]);
+    }
+
+    toggleSelect(search);
+    setSearch("");
+    setSuggestions([]);
   };
 
   const handleNext = () => {
@@ -73,13 +116,47 @@ export default function PlacesYouExploredScreen({ navigation }) {
           placeholderTextColor="#999"
           style={{ flex: 1, fontSize: 15 }}
           value={search}
-          onChangeText={setSearch}
+          onChangeText={handleSearchChange}
+          onSubmitEditing={handleSearchSubmit}
+          returnKeyType="done"
         />
       </View>
 
-      {/* Responsive Grid */}
+      {/* Google Autocomplete Dropdown */}
+      {suggestions.length > 0 && (
+        <View style={styles.dropdown}>
+          <FlatList
+            data={suggestions}
+            keyExtractor={(item) => item.place_id}
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                style={styles.dropdownItem}
+                onPress={() => {
+                  const city = item.terms[0]?.value;
+
+                  const exists = places.some(
+                    (p) => p.name.toLowerCase() === city.toLowerCase()
+                  );
+
+                  if (!exists) {
+                    setPlaces([...places, { name: city, img: null }]);
+                  }
+
+                  toggleSelect(city);
+                  setSearch("");
+                  setSuggestions([]);
+                }}
+              >
+                <Text style={{ fontSize: 15 }}>{item.description}</Text>
+              </TouchableOpacity>
+            )}
+          />
+        </View>
+      )}
+
+      {/* Responsive Grid - show all places always */}
       <View style={styles.grid}>
-        {filtered.map((item, index) => {
+        {places.map((item, index) => {
           const isSelected = selected.includes(item.name);
 
           return (
@@ -90,34 +167,39 @@ export default function PlacesYouExploredScreen({ navigation }) {
                   width: cardWidth,
                   height: cardHeight,
                   borderRadius,
+                  backgroundColor: item.img ? "transparent" : "#3B82F6", // BLUE DEFAULT
                 },
                 styles.placeCard,
                 isSelected && styles.selectedCard,
               ]}
-              onPress={()=> toggleSelect(item.name)}
+              onPress={() => toggleSelect(item.name)}
             >
-              <Image
-                source={item.img}
-                style={{
-                  width: "100%",
-                  height: "100%",
-                  borderRadius,
-                }}
-              />
+              {item.img ? (
+                <Image
+                  source={item.img}
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    borderRadius,
+                  }}
+                />
+              ) : (
+                <View
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  <Text style={styles.dynamicPlaceText}>{item.name}</Text>
+                </View>
+              )}
 
-              <View
-                style={[
-                  styles.overlay,
-                  { borderRadius },
-                ]}
-              />
+              {/* Overlay only for images */}
+              {item.img && <View style={[styles.overlay, { borderRadius }]} />}
 
-              <Text
-                style={[
-                  styles.placeText,
-                  { fontSize: width * 0.045 },
-                ]}
-              >
+              <Text style={[styles.placeText, { fontSize: width * 0.045 }]}>
                 {item.name}
               </Text>
             </TouchableOpacity>
@@ -138,6 +220,21 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     marginBottom: 20,
     width: "100%",
+  },
+
+  dropdown: {
+    backgroundColor: "#fff",
+    borderRadius: 8,
+    paddingVertical: 6,
+    marginBottom: 12,
+    elevation: 3,
+  },
+
+  dropdownItem: {
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    borderBottomWidth: 1,
+    borderColor: "#eee",
   },
 
   grid: {
@@ -172,6 +269,11 @@ const styles = StyleSheet.create({
   placeText: {
     position: "absolute",
     color: "#fff",
+    fontWeight: "700",
+  },
+
+  dynamicPlaceText: {
+    color: "#000",
     fontWeight: "700",
   },
 });

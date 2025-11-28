@@ -8,7 +8,9 @@ import {
   Image,
   StyleSheet,
   useWindowDimensions,
+  FlatList,
 } from "react-native";
+
 import BaseStepScreen from "./BaseStepScreen";
 import SearchIcon from "../../assets/icons/search.svg";
 
@@ -26,15 +28,19 @@ const placeImages = {
 export default function YourWishToTravelScreen({ navigation }) {
   const [selected, setSelected] = useState([]);
   const [search, setSearch] = useState("");
+  const [suggestions, setSuggestions] = useState([]);
+
+  const GOOGLE_API_KEY = "AIzaSyCcRhBaB3nT_NcBXklHECienWkIQ-n83-g";
 
   const { width } = useWindowDimensions();
 
-  // ⭐ SAME RESPONSIVE LOGIC AS PlacesYouExploredScreen
+  // Responsive UI
   const cardWidth = (width - 50) / 2.2;
   const cardHeight = cardWidth * 0.45;
   const borderRadius = cardWidth * 0.22;
 
-  const places = [
+  // Dynamic + Static Places
+  const [places, setPlaces] = useState([
     { name: "Gujarat", img: placeImages.Gujarat },
     { name: "Goa", img: placeImages.Goa },
     { name: "Kashmir", img: placeImages.Kashmir },
@@ -43,11 +49,33 @@ export default function YourWishToTravelScreen({ navigation }) {
     { name: "Sikkim", img: placeImages.Sikkim },
     { name: "Manali", img: placeImages.Manali },
     { name: "Rajasthan", img: placeImages.Rajasthan },
-  ];
+  ]);
 
-  const filtered = places.filter((item) =>
-    item.name.toLowerCase().includes(search.toLowerCase())
-  );
+  // Google Places API
+  const fetchPlaces = async (text) => {
+    if (!text) {
+      setSuggestions([]);
+      return;
+    }
+
+    try {
+      const url = `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${text}&types=(cities)&key=${GOOGLE_API_KEY}`;
+
+      const response = await fetch(url);
+      const json = await response.json();
+
+      if (json?.predictions) {
+        setSuggestions(json.predictions);
+      }
+    } catch (error) {
+      console.log("Places API Error:", error);
+    }
+  };
+
+  const handleSearchChange = (text) => {
+    setSearch(text);
+    fetchPlaces(text);
+  };
 
   const toggleSelect = (place) => {
     selected.includes(place)
@@ -55,9 +83,30 @@ export default function YourWishToTravelScreen({ navigation }) {
       : setSelected([...selected, place]);
   };
 
+  // Add custom place on Enter
+  const handleSearchSubmit = () => {
+    if (!search.trim()) return;
+
+    const exists = places.some(
+      (p) => p.name.toLowerCase() === search.toLowerCase()
+    );
+
+    if (!exists) {
+      setPlaces([...places, { name: search, img: null }]);
+      toggleSelect(search);
+    }
+
+    setSearch("");
+    setSuggestions([]);
+  };
+
   const handleNext = () => {
     navigation.navigate("BioScreen");
   };
+
+  const filtered = places.filter((item) =>
+    item.name.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
     <BaseStepScreen
@@ -76,9 +125,43 @@ export default function YourWishToTravelScreen({ navigation }) {
           placeholderTextColor="#999"
           style={{ flex: 1, fontSize: 15 }}
           value={search}
-          onChangeText={setSearch}
+          onChangeText={handleSearchChange}
+          onSubmitEditing={handleSearchSubmit}
+          returnKeyType="done"
         />
       </View>
+
+      {/* Suggestions Dropdown */}
+      {suggestions.length > 0 && (
+        <View style={styles.dropdown}>
+          <FlatList
+            data={suggestions}
+            keyExtractor={(item) => item.place_id}
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                style={styles.dropdownItem}
+                onPress={() => {
+                  const city = item.terms[0]?.value;
+
+                  const exists = places.some(
+                    (p) => p.name.toLowerCase() === city.toLowerCase()
+                  );
+
+                  if (!exists) {
+                    setPlaces([...places, { name: city, img: null }]);
+                  }
+
+                  toggleSelect(city);
+                  setSearch("");
+                  setSuggestions([]);
+                }}
+              >
+                <Text style={{ fontSize: 15 }}>{item.description}</Text>
+              </TouchableOpacity>
+            )}
+          />
+        </View>
+      )}
 
       {/* Responsive Grid */}
       <View style={styles.grid}>
@@ -99,18 +182,40 @@ export default function YourWishToTravelScreen({ navigation }) {
               ]}
               onPress={() => toggleSelect(item.name)}
             >
-              <Image
-                source={item.img}
-                style={{
-                  width: "100%",
-                  height: "100%",
-                  borderRadius,
-                }}
-              />
+              {item.img ? (
+                <Image
+                  source={item.img}
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    borderRadius,
+                  }}
+                />
+              ) : (
+                <View
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    backgroundColor: "#A04DFF",
+                    borderRadius,
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  <Text style={{ color: "#fff", fontWeight: "700" }}>
+                    {item.name}
+                  </Text>
+                </View>
+              )}
 
               <View style={[styles.overlay, { borderRadius }]} />
 
-              <Text style={[styles.placeText, { fontSize: width * 0.045 }]}>
+              <Text
+                style={[
+                  styles.placeText,
+                  { fontSize: width * 0.045 },
+                ]}
+              >
                 {item.name}
               </Text>
             </TouchableOpacity>
@@ -131,6 +236,21 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     marginBottom: 20,
     width: "100%",
+  },
+
+  dropdown: {
+    backgroundColor: "#fff",
+    borderRadius: 8,
+    paddingVertical: 6,
+    marginBottom: 10,
+    elevation: 3,
+  },
+
+  dropdownItem: {
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    borderBottomWidth: 1,
+    borderColor: "#eee",
   },
 
   grid: {

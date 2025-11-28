@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -6,9 +6,12 @@ import {
   FlatList,
   TouchableOpacity,
   Image,
+  Animated,
 } from "react-native";
 
 export default function ChatScreen({ navigation }) {
+  const [loading, setLoading] = useState(true);
+
   const chats = [
     {
       id: "1",
@@ -44,6 +47,31 @@ export default function ChatScreen({ navigation }) {
     },
   ];
 
+  // ⏳ Show skeleton for 1 second
+  useEffect(() => {
+    const timer = setTimeout(() => setLoading(false), 1000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  /** -------------------------
+   *   SKELETON COMPONENT
+   --------------------------*/
+  const SkeletonItem = () => (
+    <View style={styles.chatCard}>
+      <View style={styles.skeletonAvatar} />
+
+      <View style={{ flex: 1 }}>
+        <View style={styles.skeletonLineLarge} />
+        <View style={styles.skeletonLineSmall} />
+      </View>
+
+      <View style={styles.skeletonTime} />
+    </View>
+  );
+
+  /** -------------------------
+   *   CHAT ITEM
+   --------------------------*/
   const renderItem = ({ item }) => (
     <TouchableOpacity style={styles.chatCard}>
       <Image source={item.avatar} style={styles.avatar} />
@@ -71,12 +99,22 @@ export default function ChatScreen({ navigation }) {
     <View style={styles.container}>
       <Text style={styles.header}>Chats</Text>
 
-      <FlatList
-        data={chats}
-        keyExtractor={(item) => item.id}
-        renderItem={renderItem}
-        showsVerticalScrollIndicator={false}
-      />
+      {/* SKELETON LOADING */}
+      {loading ? (
+        <FlatList
+          data={[1, 2, 3, 4, 5]}
+          keyExtractor={(item) => item.toString()}
+          renderItem={() => <SkeletonItem />}
+          showsVerticalScrollIndicator={false}
+        />
+      ) : (
+        <FlatList
+          data={chats}
+          keyExtractor={(item) => item.id}
+          renderItem={renderItem}
+          showsVerticalScrollIndicator={false}
+        />
+      )}
     </View>
   );
 }
@@ -152,5 +190,38 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 12,
     fontWeight: "600",
+  },
+
+  /* -------------------
+     SKELETON STYLES
+  --------------------*/
+  skeletonAvatar: {
+    width: 55,
+    height: 55,
+    borderRadius: 30,
+    backgroundColor: "#e3e3e3",
+    marginRight: 15,
+  },
+
+  skeletonLineLarge: {
+    width: "60%",
+    height: 14,
+    backgroundColor: "#e3e3e3",
+    borderRadius: 6,
+  },
+
+  skeletonLineSmall: {
+    width: "40%",
+    height: 12,
+    backgroundColor: "#e3e3e3",
+    borderRadius: 6,
+    marginTop: 8,
+  },
+
+  skeletonTime: {
+    width: 40,
+    height: 12,
+    backgroundColor: "#e3e3e3",
+    borderRadius: 6,
   },
 });

@@ -1,5 +1,13 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  KeyboardAvoidingView,
+  Platform
+} from 'react-native';
 import LinearGradient from "react-native-linear-gradient";
 
 // SVG Back Arrow
@@ -9,14 +17,40 @@ export default function OTPScreen({ route, navigation }) {
   const { phoneNumber } = route.params;
   const [otp, setOtp] = useState('');
 
-  // BLOCK alphabets & symbols → only digits allowed
+  // TIMER
+  const [timer, setTimer] = useState(60);      // countdown from 60 sec
+  const [isResendVisible, setIsResendVisible] = useState(false);
+
+  // Start & Run Timer
+  useEffect(() => {
+    let interval = null;
+
+    if (timer > 0) {
+      interval = setInterval(() => {
+        setTimer(prev => prev - 1);
+      }, 1000);
+      setIsResendVisible(false);
+    } else {
+      setIsResendVisible(true);   // show resend only when timer ends
+    }
+
+    return () => clearInterval(interval);
+  }, [timer]);
+
+  // Handle Resend Click → Restart Timer
+  const handleResend = () => {
+    setTimer(60);
+    setOtp("");
+  };
+
+  // Block alphabets & symbols → only digits allowed
   const handleOtpChange = (text) => {
-    const numbersOnly = text.replace(/[^0-9]/g, ""); // remove non-numbers
+    const numbersOnly = text.replace(/[^0-9]/g, "");
     setOtp(numbersOnly);
   };
 
   const handleContinue = () => {
-    navigation.navigate('ProfileScreen');
+    navigation.navigate("ProfileScreen");
   };
 
   return (
@@ -48,10 +82,16 @@ export default function OTPScreen({ route, navigation }) {
           />
         </View>
 
-        {/* Resend */}
-        <TouchableOpacity style={styles.resend}>
-          <Text style={styles.resendText}>Didn’t get it? Tap to resend</Text>
-        </TouchableOpacity>
+        {/* Timer */}
+        {timer > 0 ? (
+          <Text style={styles.timerText}>
+            Resend code in <Text style={styles.timerNumber}>{timer}s</Text>
+          </Text>
+        ) : (
+          <TouchableOpacity style={styles.resend} onPress={handleResend}>
+            <Text style={styles.resendText}>Didn’t get it? Tap to resend</Text>
+          </TouchableOpacity>
+        )}
       </View>
 
       {/* Continue Button */}
@@ -89,14 +129,12 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: "700",
-    fontFamily: "Roboto",
     color: "#000",
     marginBottom: 8,
   },
 
   subtitle: {
     fontSize: 16,
-    fontFamily: "Roboto",
     color: "#5A5A5A",
     textAlign: "center",
     marginBottom: 6,
@@ -104,14 +142,13 @@ const styles = StyleSheet.create({
 
   phoneNumber: {
     fontSize: 16,
-    fontFamily: "Roboto",
     color: "#000",
     marginBottom: 35,
   },
 
   otpBoxContainer: {
     width: "80%",
-    marginBottom: 25,
+    marginBottom: 15,
   },
 
   otpInput: {
@@ -123,16 +160,26 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontSize: 22,
     letterSpacing: 20,
-    fontFamily: "Roboto",
     color: "#000",
+  },
+
+  timerText: {
+    marginTop: 10,
+    fontSize: 15,
+    color: "#999",
+  },
+
+  timerNumber: {
+    color: "#6A5AE0",
+    fontWeight: "700",
   },
 
   resend: { marginTop: 10 },
   resendText: {
     fontSize: 15,
-    fontFamily: "Roboto",
     color: "#6A5AE0",
     textAlign: "center",
+    fontWeight: "600",
   },
 
   footer: {
@@ -149,7 +196,6 @@ const styles = StyleSheet.create({
   buttonText: {
     color: "#fff",
     fontSize: 17,
-    fontFamily: "Roboto",
     fontWeight: "700",
   },
 });

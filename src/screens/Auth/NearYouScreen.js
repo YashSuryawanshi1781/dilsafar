@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -6,10 +6,14 @@ import {
   FlatList,
   TouchableOpacity,
   Image,
+  Animated,
 } from "react-native";
 import LocationIcon from "../../assets/icons/location.svg";
 
 export default function NearYouScreen() {
+  const [loading, setLoading] = useState(true);
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+
   const users = [
     { id: 1, name: "Varun", age: 20, distance: "Goa", active: true, image: "https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress" },
     { id: 2, name: "Natasha", age: 20, distance: "Mumbai", active: false, image: "https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg?auto=compress" },
@@ -19,40 +23,89 @@ export default function NearYouScreen() {
     { id: 6, name: "Jos", age: 20, distance: "Bangalore", active: false, image: "https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg?auto=compress" },
   ];
 
-  const renderItem = ({ item }) => (
-    <TouchableOpacity style={styles.card}>
-      <Image source={{ uri: item.image }} style={styles.avatar} />
+  /* ------------------------------------------
+      SHOW SKELETON FOR 1 SECOND
+  ------------------------------------------- */
+  useEffect(() => {
+    setTimeout(() => {
+      setLoading(false);
 
-      {item.active && <View style={styles.activeDot} />}
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }).start();
+    }, 1000);
+  }, []);
+
+  /* ------------------------------------------
+        SKELETON CARD
+  ------------------------------------------- */
+  const SkeletonCard = () => (
+    <View style={styles.card}>
+      <View style={styles.skeletonAvatar} />
 
       <View style={styles.infoBox}>
-        <Text style={styles.name}>
-          {item.name}, <Text style={styles.age}>{item.age}</Text>
-        </Text>
-
-        <View style={styles.distanceRow}>
-          <LocationIcon width={16} height={16} fill="#6A2BFF" />
-          <Text style={styles.distanceText}>{item.distance}</Text>
-        </View>
+        <View style={styles.skeletonLineLarge} />
+        <View style={styles.skeletonLineSmall} />
       </View>
-    </TouchableOpacity>
+
+      <View style={styles.skeletonIcon} />
+    </View>
+  );
+
+  /* ------------------------------------------
+        RENDER REAL USER CARD
+  ------------------------------------------- */
+  const renderItem = ({ item }) => (
+    <Animated.View style={{ opacity: fadeAnim }}>
+      <TouchableOpacity style={styles.card}>
+        <Image source={{ uri: item.image }} style={styles.avatar} />
+
+        {item.active && <View style={styles.activeDot} />}
+
+        <View style={styles.infoBox}>
+          <Text style={styles.name}>
+            {item.name}, <Text style={styles.age}>{item.age}</Text>
+          </Text>
+
+          <View style={styles.distanceRow}>
+            <LocationIcon width={16} height={16} fill="#6A2BFF" />
+            <Text style={styles.distanceText}>{item.distance}</Text>
+          </View>
+        </View>
+      </TouchableOpacity>
+    </Animated.View>
   );
 
   return (
     <View style={styles.container}>
       <Text style={styles.header}>Near You</Text>
 
-      <FlatList
-        data={users}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={renderItem}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 40 }}
-      />
+      {/* ----- SHOW SKELETON ----- */}
+      {loading ? (
+        <>
+          <SkeletonCard />
+          <SkeletonCard />
+          <SkeletonCard />
+          <SkeletonCard />
+        </>
+      ) : (
+        <FlatList
+          data={users}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={renderItem}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingBottom: 40 }}
+        />
+      )}
     </View>
   );
 }
 
+/* ------------------------------------------
+        STYLES
+------------------------------------------- */
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -128,5 +181,36 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#6A2BFF",
     fontWeight: "500",
+  },
+
+  /* ------------------ SKELETON ------------------ */
+  skeletonAvatar: {
+    width: 70,
+    height: 70,
+    borderRadius: 35,
+    backgroundColor: "#E0E0E0",
+    marginRight: 15,
+  },
+
+  skeletonLineLarge: {
+    width: "60%",
+    height: 16,
+    backgroundColor: "#E0E0E0",
+    borderRadius: 6,
+    marginBottom: 8,
+  },
+
+  skeletonLineSmall: {
+    width: "40%",
+    height: 14,
+    backgroundColor: "#E0E0E0",
+    borderRadius: 6,
+  },
+
+  skeletonIcon: {
+    width: 30,
+    height: 30,
+    borderRadius: 6,
+    backgroundColor: "#E0E0E0",
   },
 });

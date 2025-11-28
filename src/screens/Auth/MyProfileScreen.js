@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
     View,
     Text,
@@ -7,7 +7,7 @@ import {
     FlatList,
     TouchableOpacity,
     ScrollView,
-    Dimensions
+    Dimensions,
 } from "react-native";
 
 import LinearGradient from "react-native-linear-gradient";
@@ -20,6 +20,14 @@ import EditProfileIcon from "../../assets/icons/editprofile.svg";
 const { width } = Dimensions.get("window");
 
 export default function MyProfileScreen({ navigation }) {
+
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const timer = setTimeout(() => setLoading(false), 1000);
+        return () => clearTimeout(timer);
+    }, []);
+
     const plans = [
         { id: 1, label: "1 Month", price: 599, cut: 899, tag: "Save 35%" },
         { id: 2, label: "3 Months", price: 1299, cut: 2699, tag: "Save 30%" },
@@ -27,10 +35,7 @@ export default function MyProfileScreen({ navigation }) {
     ];
 
     const renderPlan = ({ item }) => (
-        <LinearGradient
-            colors={["#FFFFFFAA", "#FFFFFF"]}
-            style={styles.planCard}
-        >
+        <LinearGradient colors={["#FFFFFFAA", "#FFFFFF"]} style={styles.planCard}>
             <View
                 style={[
                     styles.planTag,
@@ -61,14 +66,31 @@ export default function MyProfileScreen({ navigation }) {
         </LinearGradient>
     );
 
+    // -----------------------------
+    // ⭐ SKELETON UI (1 Second)
+    // -----------------------------
+    if (loading) {
+        return (
+            <View style={{ flex: 1, backgroundColor: "#F9F7FF" }}>
+                <View style={styles.skeletonHeader} />
+                <View style={styles.skeletonProfile} />
+                <View style={styles.skeletonName} />
+                <View style={styles.skeletonLocation} />
+
+                <View style={{ flexDirection: "row", marginTop: 40, paddingHorizontal: 16 }}>
+                    <View style={styles.skeletonPlan} />
+                    <View style={[styles.skeletonPlan, { marginLeft: 16 }]} />
+                </View>
+            </View>
+        );
+    }
+
+    // -----------------------------
+    // ⭐ MAIN UI AFTER LOADING
+    // -----------------------------
     return (
         <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-            
-            {/* HEADER WITH GRADIENT */}
-            <LinearGradient
-                colors={["#6A2BFF", "#A68BFF"]}
-                style={styles.header}
-            >
+            <LinearGradient colors={["#6A2BFF", "#A68BFF"]} style={styles.header}>
                 <Image
                     source={require("../../assets/images/dilsafar.png")}
                     style={styles.logoImage}
@@ -79,23 +101,22 @@ export default function MyProfileScreen({ navigation }) {
                 </TouchableOpacity>
             </LinearGradient>
 
-            {/* PROFILE */}
             <View style={styles.profileWrapper}>
                 <View style={styles.profileCircle}>
                     <Image
                         source={{
-                            uri: "https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg"
+                            uri: "https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg",
                         }}
                         style={styles.profileImage}
                     />
                 </View>
 
-                {/* Completion Badge */}
                 <View style={styles.completionBadge}>
-                    <Text style={{ color: "#fff", fontWeight: "700", fontSize: 12 }}>60%</Text>
+                    <Text style={{ color: "#fff", fontWeight: "700", fontSize: 12 }}>
+                        60%
+                    </Text>
                 </View>
 
-                {/* Edit Icon */}
                 <TouchableOpacity
                     style={styles.editIcon}
                     onPress={() => navigation.navigate("EditProfile")}
@@ -110,12 +131,10 @@ export default function MyProfileScreen({ navigation }) {
                 </View>
             </View>
 
-            {/* Title */}
             <Text style={styles.title}>
                 Unlock the Journey of{"\n"}Meaningful Connections
             </Text>
 
-            {/* PLANS */}
             <FlatList
                 data={plans}
                 horizontal
@@ -129,9 +148,52 @@ export default function MyProfileScreen({ navigation }) {
     );
 }
 
+// -----------------------------------------------------------
+// STYLES
+// -----------------------------------------------------------
+
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: "#F9F7FF" },
 
+    // ------------------ Skeleton ---------------------
+    skeletonHeader: {
+        height: 120,
+        backgroundColor: "#E5D9FF",
+        borderBottomLeftRadius: 20,
+        borderBottomRightRadius: 20,
+    },
+    skeletonProfile: {
+        width: 150,
+        height: 150,
+        borderRadius: 80,
+        backgroundColor: "#DDD3F9",
+        alignSelf: "center",
+        marginTop: -50,
+    },
+    skeletonName: {
+        width: 120,
+        height: 20,
+        backgroundColor: "#E3DAFF",
+        borderRadius: 10,
+        alignSelf: "center",
+        marginTop: 20,
+    },
+    skeletonLocation: {
+        width: 90,
+        height: 15,
+        backgroundColor: "#E5D7FF",
+        borderRadius: 8,
+        alignSelf: "center",
+        marginTop: 10,
+    },
+    skeletonPlan: {
+        width: width * 0.5,
+        height: 150,
+        borderRadius: 20,
+        backgroundColor: "#E8DFFF",
+    },
+
+    // ------------------ Header ---------------------
     header: {
         height: 120,
         paddingTop: 50,
@@ -142,11 +204,16 @@ const styles = StyleSheet.create({
         borderBottomLeftRadius: 20,
         borderBottomRightRadius: 20,
         elevation: 4,
-        shadowColor: "#6A2BFF",
     },
-    logoImage: { width: 150, height: 40, marginBottom: 50 }, // Added margin for gap
-    settingsIconWrapper: { width: 50, height: 50, justifyContent: "center", alignItems: "center" },
+    logoImage: { width: 150, height: 40, marginBottom: 50 },
+    settingsIconWrapper: {
+        width: 50,
+        height: 50,
+        justifyContent: "center",
+        alignItems: "center",
+    },
 
+    // ------------------ Profile ---------------------
     profileWrapper: { alignItems: "center", marginTop: -50 },
     profileCircle: {
         width: 150,
@@ -156,10 +223,6 @@ const styles = StyleSheet.create({
         borderColor: "#fff",
         padding: 3,
         backgroundColor: "#fff",
-        shadowColor: "#6A2BFF",
-        shadowOpacity: 0.3,
-        shadowOffset: { width: 0, height: 10 },
-        shadowRadius: 20,
         elevation: 10,
     },
     profileImage: { width: "100%", height: "100%", borderRadius: 75 },
@@ -184,7 +247,6 @@ const styles = StyleSheet.create({
         alignItems: "center",
         backgroundColor: "#6A2BFF",
         elevation: 8,
-        shadowColor: "#6A2BFF",
     },
 
     userName: { marginTop: 20, fontSize: 28, fontWeight: "800", color: "#222" },
@@ -201,6 +263,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16,
     },
 
+    // ------------------ Plans ---------------------
     planCard: {
         width: width * 0.58,
         padding: 20,
@@ -208,10 +271,6 @@ const styles = StyleSheet.create({
         backgroundColor: "#fff",
         borderWidth: 1,
         borderColor: "#E8DFFF",
-        shadowColor: "#A86BFF",
-        shadowOpacity: 0.25,
-        shadowOffset: { width: 0, height: 8 },
-        shadowRadius: 12,
         elevation: 8,
     },
 
@@ -223,11 +282,14 @@ const styles = StyleSheet.create({
         alignSelf: "flex-start",
         marginBottom: 12,
     },
-
     planTagText: { fontSize: 12, fontWeight: "700", color: "#6A2BFF" },
     planLabel: { fontSize: 18, fontWeight: "800", marginBottom: 6, color: "#333" },
     planPrice: { fontSize: 22, fontWeight: "700", color: "#222" },
-    planCut: { fontSize: 14, color: "#999", textDecorationLine: "line-through" },
+    planCut: {
+        fontSize: 14,
+        color: "#999",
+        textDecorationLine: "line-through",
+    },
 
     upgradeButton: {
         backgroundColor: "#6A2BFF",
@@ -237,10 +299,5 @@ const styles = StyleSheet.create({
         alignItems: "center",
         elevation: 6,
     },
-
-    upgradeText: {
-        color: "#fff",
-        fontWeight: "700",
-        fontSize: 16,
-    },
+    upgradeText: { color: "#fff", fontWeight: "700", fontSize: 16 },
 });
