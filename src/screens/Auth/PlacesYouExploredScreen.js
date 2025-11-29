@@ -48,7 +48,7 @@ export default function PlacesYouExploredScreen({ navigation }) {
   const [searchSuggestions, setSearchSuggestions] = useState([]);
   const [userAddedPlaces, setUserAddedPlaces] = useState([]);
 
-  const GOOGLE_API_KEY = "YOUR_GOOGLE_API_KEY"; // Replace with your key
+  const GOOGLE_API_KEY = "AIzaSyCcRhBaB3nT_NcBXklHECienWkIQ-n83-g"; // Your key
 
   const allPlaces = [...STATIC_PLACES, ...userAddedPlaces];
 
@@ -58,16 +58,31 @@ export default function PlacesYouExploredScreen({ navigation }) {
       setSearchSuggestions([]);
       return;
     }
+
     try {
-      const url = `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${query}&types=(cities)&key=${GOOGLE_API_KEY}`;
+      const url = `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${encodeURIComponent(
+        query
+      )}&types=(cities)&key=${GOOGLE_API_KEY}`;
+
+      console.log("Google Places API Request URL:", url); // Log the request URL
+
       const response = await fetch(url);
       const data = await response.json();
-      if (data?.predictions) setSearchSuggestions(data.predictions);
+
+      console.log("Google Places API Response:", data); // Log the response
+
+      if (data.status === "OK" && data.predictions) {
+        setSearchSuggestions(data.predictions);
+      } else {
+        console.error("Places API error:", data.status, data.error_message || "");
+        setSearchSuggestions([]);
+      }
     } catch (error) {
-      console.error(error);
+      console.error("Fetch error:", error);
       setSearchSuggestions([]);
     }
   };
+
 
   const onSearchChange = (text) => {
     setSearchText(text);
