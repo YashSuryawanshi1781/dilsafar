@@ -156,55 +156,90 @@ export default function PlacesYouExploredScreen({ navigation }) {
 
       {/* Responsive Grid - show all places always */}
       <View style={styles.grid}>
-        {places.map((item, index) => {
-          const isSelected = selected.includes(item.name);
+       {places.map((item, index) => {
+  const isSelected = selected.includes(item.name);
+  const isImage = !!item.img;
 
-          return (
-            <TouchableOpacity
-              key={index}
-              style={[
-                {
-                  width: cardWidth,
-                  height: cardHeight,
-                  borderRadius,
-                  backgroundColor: item.img ? "transparent" : "#3B82F6", // BLUE DEFAULT
-                },
-                styles.placeCard,
-                isSelected && styles.selectedCard,
-              ]}
-              onPress={() => toggleSelect(item.name)}
-            >
-              {item.img ? (
-                <Image
-                  source={item.img}
-                  style={{
-                    width: "100%",
-                    height: "100%",
-                    borderRadius,
-                  }}
-                />
-              ) : (
-                <View
-                  style={{
-                    width: "100%",
-                    height: "100%",
-                    justifyContent: "center",
-                    alignItems: "center",
-                  }}
-                >
-                  <Text style={styles.dynamicPlaceText}>{item.name}</Text>
-                </View>
-              )}
+  // Determine background and text color for dynamic pills
+  let bgColor = "#3B82F6"; // default blue for unselected
+  let textColor = "#fff";
 
-              {/* Overlay only for images */}
-              {item.img && <View style={[styles.overlay, { borderRadius }]} />}
+  if (!isImage && isSelected) {
+    // First click
+    bgColor = "#A04DFF"; // purple
+    textColor = "#fff";
+  } else if (!isImage && !isSelected && selected.includes(item.name + "_second")) {
+    // Second click
+    bgColor = "#fff"; // white pill
+    textColor = "#A04DFF"; // purple text
+  }
 
-              <Text style={[styles.placeText, { fontSize: width * 0.045 }]}>
-                {item.name}
-              </Text>
-            </TouchableOpacity>
-          );
-        })}
+  return (
+    <TouchableOpacity
+      key={index}
+      style={[
+        {
+          width: cardWidth,
+          height: cardHeight,
+          borderRadius,
+          backgroundColor: isImage ? "transparent" : bgColor,
+        },
+        styles.placeCard,
+        isSelected && isImage && styles.selectedCard, // image overlay stays purple
+      ]}
+      onPress={() => {
+        if (!isImage) {
+          if (!selected.includes(item.name)) {
+            // first click
+            setSelected([...selected, item.name]);
+          } else if (selected.includes(item.name)) {
+            // second click → toggle to white pill
+            setSelected(selected.filter((c) => c !== item.name));
+            setSelected([...selected, item.name + "_second"]);
+          } else if (selected.includes(item.name + "_second")) {
+            // optional: toggle back
+            setSelected(selected.filter((c) => c !== item.name + "_second"));
+          }
+        } else {
+          // normal image toggle
+          toggleSelect(item.name);
+        }
+      }}
+    >
+      {isImage ? (
+        <>
+          <Image
+            source={item.img}
+            style={{
+              width: "100%",
+              height: "100%",
+              borderRadius,
+            }}
+          />
+          <View style={[styles.overlay, { borderRadius }]} />
+          <Text style={[styles.placeText, { fontSize: width * 0.045 }]}>
+            {item.name}
+          </Text>
+        </>
+      ) : (
+        <View
+          style={{
+            width: "100%",
+            height: "100%",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <Text style={[styles.dynamicPlaceText, { color: textColor }]}>
+            {item.name}
+          </Text>
+        </View>
+      )}
+    </TouchableOpacity>
+  );
+})}
+
+
       </View>
     </BaseStepScreen>
   );
