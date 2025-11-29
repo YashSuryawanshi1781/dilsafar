@@ -131,32 +131,27 @@ export default function YourWishToTravelScreen({ navigation }) {
         />
       </View>
 
-      {/* Suggestions Dropdown */}
       {suggestions.length > 0 && (
-        <View style={styles.dropdown}>
+        <View style={styles.suggestionsContainer}>
           <FlatList
             data={suggestions}
             keyExtractor={(item) => item.place_id}
             renderItem={({ item }) => (
               <TouchableOpacity
-                style={styles.dropdownItem}
+                style={styles.suggestionItem}
                 onPress={() => {
-                  const city = item.terms[0]?.value;
+                  const city = item.terms[0]?.value || item.description;
 
                   const exists = places.some(
                     (p) => p.name.toLowerCase() === city.toLowerCase()
                   );
-
-                  if (!exists) {
-                    setPlaces([...places, { name: city, img: null }]);
-                  }
-
+                  if (!exists) setPlaces([...places, { name: city, img: null }]);
                   toggleSelect(city);
                   setSearch("");
                   setSuggestions([]);
                 }}
               >
-                <Text style={{ fontSize: 15 }}>{item.description}</Text>
+                <Text style={styles.suggestionText}>{item.description}</Text>
               </TouchableOpacity>
             )}
           />
@@ -164,64 +159,120 @@ export default function YourWishToTravelScreen({ navigation }) {
       )}
 
       {/* Responsive Grid */}
+      {/* Responsive Grid */}
       <View style={styles.grid}>
-        {filtered.map((item, index) => {
-          const isSelected = selected.includes(item.name);
-
-          return (
-            <TouchableOpacity
-              key={index}
-              style={[
-                {
-                  width: cardWidth,
-                  height: cardHeight,
-                  borderRadius,
-                },
-                styles.placeCard,
-                isSelected && styles.selectedCard,
-              ]}
-              onPress={() => toggleSelect(item.name)}
-            >
-              {item.img ? (
-                <Image
-                  source={item.img}
-                  style={{
-                    width: "100%",
-                    height: "100%",
-                    borderRadius,
-                  }}
-                />
-              ) : (
-                <View
-                  style={{
-                    width: "100%",
-                    height: "100%",
-                    backgroundColor: "#A04DFF",
-                    borderRadius,
-                    justifyContent: "center",
-                    alignItems: "center",
-                  }}
-                >
-                  <Text style={{ color: "#fff", fontWeight: "700" }}>
-                    {item.name}
-                  </Text>
-                </View>
-              )}
-
-              <View style={[styles.overlay, { borderRadius }]} />
-
-              <Text
+        {/* Selected items first */}
+        {selected
+          .map((name) => places.find((p) => p.name === name))
+          .filter(Boolean) // remove nulls
+          .map((item, index) => {
+            const hasImage = !!item.img;
+            return (
+              <TouchableOpacity
+                key={`selected-${index}`}
                 style={[
-                  styles.placeText,
-                  { fontSize: width * 0.045 },
+                  styles.placeCard,
+                  {
+                    width: cardWidth,
+                    height: cardHeight,
+                    borderRadius,
+                    backgroundColor: hasImage ? "#cfe0fbff" : "#A04DFF",
+                    borderWidth: hasImage ? 3 : 0,
+                    borderColor: hasImage ? "#A04DFF" : "transparent",
+                  },
                 ]}
+                onPress={() => toggleSelect(item.name)}
+                activeOpacity={0.7}
               >
-                {item.name}
-              </Text>
-            </TouchableOpacity>
-          );
-        })}
+                {hasImage ? (
+                  <>
+                    <Image
+                      source={item.img}
+                      style={{ width: "100%", height: "100%", borderRadius }}
+                    />
+                    <View style={[styles.overlay, { borderRadius }]} />
+                    <Text style={[styles.placeText, { fontSize: width * 0.045 }]}>
+                      {item.name}
+                    </Text>
+                  </>
+                ) : (
+                  <View
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      borderRadius,
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Text style={{ color: "#fff", fontWeight: "700" }}>
+                      {item.name}
+                    </Text>
+                  </View>
+                )}
+              </TouchableOpacity>
+            );
+          })}
+
+        {/* Filtered unselected items */}
+        {filtered
+          .filter((item) => !selected.includes(item.name))
+          .map((item, index) => {
+            const hasImage = !!item.img;
+            return (
+              <TouchableOpacity
+                key={`filtered-${index}`}
+                style={[
+                  styles.placeCard,
+                  {
+                    width: cardWidth,
+                    height: cardHeight,
+                    borderRadius,
+                    backgroundColor: hasImage
+                      ? "#cfe0fbff"
+                      : "#3B82F6",
+                    borderWidth: hasImage && selected.includes(item.name) ? 3 : 0,
+                    borderColor:
+                      hasImage && selected.includes(item.name)
+                        ? "#A04DFF"
+                        : "transparent",
+                  },
+                ]}
+                onPress={() => toggleSelect(item.name)}
+                activeOpacity={0.7}
+              >
+                {hasImage ? (
+                  <>
+                    <Image
+                      source={item.img}
+                      style={{ width: "100%", height: "100%", borderRadius }}
+                    />
+                    <View style={[styles.overlay, { borderRadius }]} />
+                    <Text style={[styles.placeText, { fontSize: width * 0.045 }]}>
+                      {item.name}
+                    </Text>
+                  </>
+                ) : (
+                  <View
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      borderRadius,
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Text style={{ color: "#fff", fontWeight: "700" }}>
+                      {item.name}
+                    </Text>
+                  </View>
+                )}
+              </TouchableOpacity>
+            );
+          })}
       </View>
+
+
     </BaseStepScreen>
   );
 }
@@ -245,6 +296,31 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     elevation: 3,
   },
+  suggestionsContainer: {
+    backgroundColor: "#fff",
+    borderRadius: 8,
+    marginTop: 4,
+    marginBottom: 12,
+    elevation: 3,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    maxHeight: 50, // optional, prevents stretching too long
+  },
+
+  suggestionItem: {
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: "#F0F0F0",
+  },
+
+  suggestionText: {
+    fontSize: 15,
+    color: "#333",
+  },
+
 
   dropdownItem: {
     paddingVertical: 10,
