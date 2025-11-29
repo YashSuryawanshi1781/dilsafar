@@ -63,9 +63,12 @@ export default function ProfileScreen({ navigation }) {
     const cleanText = text.replace(/^\s+/g, "");
     const alphabetsOnly = cleanText.replace(/[^A-Za-z]/g, "");
     
-    setFirstName(alphabetsOnly);
+    // Limit to 15 characters
+    const limitedText = alphabetsOnly.slice(0, 15);
+    
+    setFirstName(limitedText);
 
-    if (alphabetsOnly.trim().length >= 2) {
+    if (limitedText.trim().length >= 2) {
       setFirstNameError('');
     }
   };
@@ -94,6 +97,7 @@ export default function ProfileScreen({ navigation }) {
           value={firstName}
           onChangeText={handleFirstNameChange}
           autoCapitalize="words"
+          maxLength={15}
         />
         {firstNameError ? (
           <Text style={styles.error}>{firstNameError}</Text>
