@@ -58,6 +58,18 @@ export default function ProfileScreen({ navigation }) {
     }
   };
 
+  const handleFirstNameChange = (text) => {
+    // Remove spaces at start and only allow alphabets (A-Z, a-z)
+    const cleanText = text.replace(/^\s+/g, "");
+    const alphabetsOnly = cleanText.replace(/[^A-Za-z]/g, "");
+    
+    setFirstName(alphabetsOnly);
+
+    if (alphabetsOnly.trim().length >= 2) {
+      setFirstNameError('');
+    }
+  };
+
   return (
     <View style={styles.container}>
 
@@ -80,13 +92,7 @@ export default function ProfileScreen({ navigation }) {
           style={[styles.input, firstNameError ? styles.errorBorder : null]}
           placeholder="First Name"
           value={firstName}
-          onChangeText={(text) => {
-            // Remove spaces at start
-            const clean = text.replace(/^\s+/g, "");
-            setFirstName(clean);
-
-            if (clean.trim().length >= 2) setFirstNameError('');
-          }}
+          onChangeText={handleFirstNameChange}
           autoCapitalize="words"
         />
         {firstNameError ? (
