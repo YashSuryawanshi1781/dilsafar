@@ -1,4 +1,3 @@
-// src/screens/Auth/BioScreen.js
 import React, { useState } from "react";
 import {
   View,

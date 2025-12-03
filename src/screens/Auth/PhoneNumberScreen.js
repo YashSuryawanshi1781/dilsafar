@@ -5,7 +5,6 @@ import LinearGradient from "react-native-linear-gradient";
 // Your SVG back arrow
 import BackArrow from "../../assets/icons/backarrow.svg";
 
-// Country data with flags, codes, and max lengths
 const COUNTRIES = [
     { code: 'IN', name: 'India', flag: '🇮🇳', dialCode: '+91', maxLength: 10 },
     { code: 'US', name: 'United States', flag: '🇺🇸', dialCode: '+1', maxLength: 10 },

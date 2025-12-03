@@ -1,4 +1,3 @@
-// src/screens/Auth/BaseStepScreen.js
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
@@ -13,7 +12,7 @@ export default function BaseStepScreen({
   currentStep,
   totalSteps,
   onNext,
-  nextText = "Next", // default text
+  nextText = "Next", 
 }) {
   return (
     <View style={styles.container}>

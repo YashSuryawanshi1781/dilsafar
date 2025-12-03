@@ -159,7 +159,6 @@ export default function YourWishToTravelScreen({ navigation }) {
       )}
 
       {/* Responsive Grid */}
-      {/* Responsive Grid */}
       <View style={styles.grid}>
         {/* Selected items first */}
         {selected
