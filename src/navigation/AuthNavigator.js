@@ -13,7 +13,8 @@ import BioScreen from '../screens/Auth/BioScreen';
 import BottomTabs from './BottomTabs'; // <-- import bottom tabs
 import EditProfileScreen from '../screens/Auth/EditProfileScreen';
 import UserDetailScreen from '../screens/Auth/UserDetailScreen';
-
+import FilterScreen from '../screens/Auth/FilterScreen/FilterScreen'
+import ChatScreenpersonal from '../screens/Auth/ChatScreenpersonal'
 const Stack = createStackNavigator();
 
 export default function AuthNavigator() {
@@ -37,6 +38,9 @@ export default function AuthNavigator() {
       {/* Other Screens */}
       <Stack.Screen name="EditProfile" component={EditProfileScreen} />
       <Stack.Screen name="UserDetail" component={UserDetailScreen} />
+      <Stack.Screen name="FilterScreen" component={FilterScreen} />
+      <Stack.Screen name="ChatScreen" component={ChatScreenpersonal} />
+
     </Stack.Navigator>
   );
 }

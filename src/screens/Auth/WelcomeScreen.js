@@ -1,368 +1,146 @@
-import React from "react";
+import React from 'react';
 import {
   View,
   Text,
   TouchableOpacity,
   StyleSheet,
-  ScrollView,
-  ImageBackground,
-  Image,
-  Platform,
-  StatusBar,
   Dimensions,
-} from "react-native";
-import { useNavigation } from "@react-navigation/native";
+} from 'react-native';
 
-import BannerImage from "../../assets/images/banner.png";
-import LogoImage from "../../assets/images/dilsafar.png";
+import { useNavigation } from '@react-navigation/native';
 
-import PhoneIcon from "../../assets/images/phone.svg";
-import FacebookIcon from "../../assets/images/facebook.svg";
-import GoogleIcon from "../../assets/images/google.svg";
+// SVG imports
+import WelcomeSvg from '../../assets/images/welcome.svg';
+import PhoneIcon from '../../assets/icons/phone.svg';
+import FacebookIcon from '../../assets/icons/facebook.svg';
+import GoogleIcon from '../../assets/icons/google.svg';
 
-const { height, width } = Dimensions.get("window");
+const { width, height } = Dimensions.get('window');
+
+// Utility to scale UI
+const scale = width / 390;   // Base Figma width
+const vScale = height / 844; // Base Figma height
 
 export default function WelcomeScreen() {
   const navigation = useNavigation();
 
   return (
-    <ScrollView
-      style={styles.scrollContainer}
-      contentContainerStyle={{ flexGrow: 1 }}
-      bounces={false}
-    >
-      <StatusBar
-        barStyle="light-content"
-        translucent
-        backgroundColor="transparent"
-      />
+    <View style={styles.container}>
 
-      <ImageBackground
-        source={BannerImage}
-        style={styles.backgroundImage}
-        resizeMode="cover"
-      >
-        <View style={styles.overlayGradient} />
-        <View style={styles.glassOverlay} />
+      {/* Top Illustration */}
+      <View style={styles.topImageWrapper}>
+        <WelcomeSvg width={width} height={434 * vScale} />
+      </View>
 
-        {/* Top Chip */}
-        <View style={styles.topChip}>
-          <View style={styles.topChipDot} />
-          <Text style={styles.topChipText}>Plan • Book • Travel</Text>
-        </View>
+      {/* Buttons Section */}
+      <View style={styles.buttonContainer}>
 
-        <View style={styles.contentContainer}>
-          {/* WELCOME TEXT */}
-          <Text style={styles.designerWelcome}>WELCOME TO</Text>
+        {/* Continue with Phone */}
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => navigation.navigate('PhoneNumber')}
+        >
+          <PhoneIcon width={22 * scale} height={22 * scale} style={styles.icon} />
+          <Text style={styles.buttonText}>Continue With Phone</Text>
+        </TouchableOpacity>
 
-          {/* RESPONSIVE LOGO */}
-          <Image
-            source={LogoImage}
-            style={[styles.logoImage, { width: width * 0.55, height: height * 0.1 }]}
-            resizeMode="contain"
-          />
+        {/* Continue with Facebook */}
+        <TouchableOpacity style={styles.button}>
+          <FacebookIcon width={22 * scale} height={22 * scale} style={styles.icon} />
+          <Text style={styles.buttonText}>Continue With Facebook</Text>
+        </TouchableOpacity>
 
-          <Text style={styles.tagline}>Your Journey, Curated</Text>
+        {/* Continue with Google */}
+        <TouchableOpacity style={styles.button}>
+          <GoogleIcon width={22 * scale} height={22 * scale} style={styles.icon} />
+          <Text style={styles.buttonText}>Continue With Google</Text>
+        </TouchableOpacity>
 
-          <Text style={styles.subTagline}>
-            Discover flights, stays and experiences tailored just for you.
-          </Text>
+        {/* Login Link */}
+        <Text style={styles.loginText}>
+          Already have an account? <Text style={styles.link}>Sign In</Text>
+        </Text>
 
-          {/* CTA BUTTON */}
-          <TouchableOpacity
-            activeOpacity={0.9}
-            style={[styles.primaryCta, { marginTop: height * 0.04 }]}
-            onPress={() => navigation.navigate("PhoneNumber")}
-          >
-            <View style={styles.primaryCtaLeft}>
-              <PhoneIcon width={22} height={22} />
-              <Text style={styles.primaryCtaText}>Continue with phone</Text>
-            </View>
+        {/* Disclaimer */}
+        <Text style={styles.smallText}>
+          We’ll never share anything without your permission
+        </Text>
 
-            <View style={styles.primaryCtaPill}>
-              <Text style={styles.primaryCtaPillText}>Get Started</Text>
-            </View>
-          </TouchableOpacity>
+        <Text style={styles.smallText}>
+          By signing up, you agree to our <Text style={styles.link}>terms and conditions</Text>,{' '}
+          learn how we use your data in our <Text style={styles.link}>privacy policy</Text>
+        </Text>
 
-          {/* Divider */}
-          <View style={styles.dividerRow}>
-            <View style={styles.dividerLine} />
-            <Text style={styles.dividerText}>Or continue with</Text>
-            <View style={styles.dividerLine} />
-          </View>
-
-          {/* SOCIAL BUTTONS */}
-          <View style={styles.socialRow}>
-            <TouchableOpacity
-              style={[styles.socialButton, styles.socialFacebook]}
-              activeOpacity={0.85}
-            >
-              <FacebookIcon width={30} height={30} />
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[styles.socialButton, styles.socialGoogle]}
-              activeOpacity={0.85}
-            >
-              <GoogleIcon width={30} height={30} />
-            </TouchableOpacity>
-          </View>
-
-          {/* TRUST BADGES */}
-          <View style={styles.trustRow}>
-            <View style={styles.trustItem}>
-              <View style={styles.trustDot} />
-              <Text style={styles.trustText}>Trusted by 25K+ travelers</Text>
-            </View>
-            <View style={styles.trustItem}>
-              <View style={styles.trustDot} />
-              <Text style={styles.trustText}>Secure payments</Text>
-            </View>
-          </View>
-
-          {/* SIGN-IN */}
-          <View style={styles.signInContainer}>
-            <Text style={styles.signInText}>Already have an account?</Text>
-            <TouchableOpacity onPress={() => navigation.navigate("SignIn")}>
-              <Text style={styles.signInLink}> Sign In</Text>
-            </TouchableOpacity>
-          </View>
-
-          {/* FOOTER */}
-          <Text style={styles.footerText}>
-            We’ll never share anything without your permission.
-          </Text>
-
-          <Text style={styles.footerTextSmall}>
-            By signing up, you agree to our
-            <Text style={styles.linkText}> Terms & Conditions</Text> and how we
-            use your data in our
-            <Text style={styles.linkText}> Privacy Policy</Text>.
-          </Text>
-        </View>
-      </ImageBackground>
-    </ScrollView>
+      </View>
+    </View>
   );
 }
 
+// ----------------- STYLES -----------------
 const styles = StyleSheet.create({
-  scrollContainer: {
+  container: {
     flex: 1,
-    backgroundColor: "#050816",
+    backgroundColor: '#FFFFFF',
   },
 
-  backgroundImage: {
-    width: "100%",
-    minHeight: height,
-    justifyContent: "flex-start",
-    paddingTop: StatusBar.currentHeight ? StatusBar.currentHeight + 16 : 60,
-    paddingBottom: 40,
+  topImageWrapper: {
+    width: width,
+    height: 400 * vScale,
+    overflow: 'hidden',
+    borderBottomLeftRadius: 30,
+    borderBottomRightRadius: 30,
   },
 
-  overlayGradient: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(5, 8, 22, 0.45)",
+  buttonContainer: {
+    paddingTop: 20 * vScale,
+    paddingHorizontal: 20 * scale,
+    alignItems: 'center',
   },
 
-  glassOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(255,255,255,0.04)",
-    borderColor: "rgba(255,255,255,0.08)",
-    borderWidth: 0.5,
+  button: {
+    width: 347 * scale,
+    height: 68 * vScale,
+    borderWidth: 1.2,
+    borderColor: '#DADADA',
+    borderRadius: 40,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16 * vScale,
+    backgroundColor: '#FFF',
+    elevation: 2,
+    paddingHorizontal: 0,
   },
 
-  contentContainer: {
-    flex: 1,
-    alignItems: "center",
-    paddingHorizontal: 24,
-    marginTop: height * 0.12, // Responsive top gap
+  icon: {
+    marginRight: 10 * scale,
   },
 
-  topChip: {
-    position: "absolute",
-    top: StatusBar.currentHeight ? StatusBar.currentHeight + 8 : 24,
-    left: 24,
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 14,
-    paddingVertical: 6,
-    borderRadius: 999,
-    backgroundColor: "rgba(15, 23, 42, 0.7)",
-    borderWidth: 1,
-    borderColor: "rgba(148,163,184,0.35)",
+  buttonText: {
+    fontSize: 17 * scale,
+    fontWeight: '600',
+    color: '#000',
+    textAlign: 'center',
   },
 
-  topChipDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 99,
-    backgroundColor: "#22c55e",
-    marginRight: 8,
+  loginText: {
+    marginTop: 4 * vScale,
+    fontSize: 14 * scale,
+    color: '#777',
+    textAlign: 'center',
   },
 
-  topChipText: {
-    color: "#E5E7EB",
-    fontSize: 12,
+  link: {
+    color: '#9A4AFF',
+    fontWeight: '600',
   },
 
-  designerWelcome: {
-    fontSize: width * 0.08,
-    letterSpacing: 6,
-    textAlign: "center",
-    color: "#F9FAFB",
-    fontWeight: "bold",
-  },
-
-  logoImage: {
-    marginVertical: 12,
-  },
-
-  tagline: {
-    fontSize: width * 0.055,
-    color: "#E5DEFF",
-    fontWeight: "800",
-    marginTop: 8,
-  },
-
-  subTagline: {
-    marginTop: 8,
-    fontSize: width * 0.032,
-    color: "#E5E7EB",
-    textAlign: "center",
-    lineHeight: 20,
-    maxWidth: 320,
-  },
-
-  primaryCta: {
-    width: "94%",
-    borderRadius: 999,
-    paddingVertical: 14,
-    paddingHorizontal: 18,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    backgroundColor: "rgba(248,250,252,0.92)",
-  },
-
-  primaryCtaLeft: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  primaryCtaText: {
-    marginLeft: 10,
-    color: "#020617",
-    fontSize: 15,
-    fontWeight: "600",
-  },
-
-  primaryCtaPill: {
-    paddingHorizontal: 14,
-    paddingVertical: 6,
-    borderRadius: 999,
-    backgroundColor: "#4f46e5",
-  },
-
-  primaryCtaPillText: {
-    color: "#F9FAFB",
-    fontSize: 10,
-    fontWeight: "600",
-  },
-
-  dividerRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginTop: height * 0.03,
-    width: "86%",
-  },
-
-  dividerLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: "rgba(148,163,184,0.6)",
-  },
-
-  dividerText: {
-    marginHorizontal: 10,
-    color: "#CBD5F5",
-    fontSize: 12,
-  },
-
-  socialRow: {
-    flexDirection: "row",
-    marginTop: height * 0.025,
-    width: "78%",
-    justifyContent: "space-evenly",
-  },
-
-  socialButton: {
-    padding: 18,
-    borderRadius: 64,
-  },
-
-  socialFacebook: {
-    backgroundColor: "rgba(37,99,235,0.9)",
-  },
-  socialGoogle: {
-    backgroundColor: "rgba(248,250,252,0.9)",
-  },
-
-  trustRow: {
-    marginTop: height * 0.03,
-    width: "90%",
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-
-  trustItem: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-
-  trustDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 99,
-    backgroundColor: "#22c55e",
-    marginRight: 6,
-  },
-  trustText: {
-    color: "#E5E7EB",
-    fontSize: 11,
-  },
-
-  signInContainer: {
-    flexDirection: "row",
-    marginTop: height * 0.03,
-  },
-
-  signInText: {
-    color: "#E5E7EB",
-    fontSize: 14,
-  },
-  signInLink: {
-    color: "#e0aaff",
-    fontSize: 15,
-    fontWeight: "700",
-  },
-
-  footerText: {
-    marginTop: height * 0.03,
-    color: "#F3EAFE",
-    fontSize: 13,
-    textAlign: "center",
-    maxWidth: 320,
-  },
-
-  footerTextSmall: {
-    marginTop: 8,
-    color: "#CBD5F5",
-    fontSize: 11,
-    textAlign: "center",
-    maxWidth: 340,
-  },
-
-  linkText: {
-    color: "#c77dff",
-    fontWeight: "700",
+  smallText: {
+    marginTop: 10 * vScale,
+    fontSize: 12 * scale,
+    lineHeight: 16 * vScale,
+    textAlign: 'center',
+    color: '#888',
+    paddingHorizontal: 20 * scale,
   },
 });

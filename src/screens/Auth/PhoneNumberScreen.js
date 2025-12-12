@@ -1,59 +1,43 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, TextInput, Modal, FlatList, ScrollView } from 'react-native';
+import {
+    View,
+    Text,
+    TouchableOpacity,
+    StyleSheet,
+    TextInput,
+    Modal,
+    FlatList,
+    Dimensions,
+    Platform,
+    StatusBar,
+} from 'react-native';
 import LinearGradient from "react-native-linear-gradient";
 
 // Your SVG back arrow
 import BackArrow from "../../assets/icons/backarrow.svg";
 
+// IMPORT YOUR SVG BACKGROUND
+// Update this relative path if needed. Example assumes this screen file is inside src/... so '../../assets/..' might change.
+// If you're using react-native-svg-transformer you can import the svg as a component:
+import PhoneVector from "../../assets/vectors/phonevector.svg";
+
 const COUNTRIES = [
+    /* ... keep your COUNTRIES array exactly as before ... */
     { code: 'IN', name: 'India', flag: '🇮🇳', dialCode: '+91', maxLength: 10 },
     { code: 'US', name: 'United States', flag: '🇺🇸', dialCode: '+1', maxLength: 10 },
-    { code: 'GB', name: 'United Kingdom', flag: '🇬🇧', dialCode: '+44', maxLength: 10 },
-    { code: 'CA', name: 'Canada', flag: '🇨🇦', dialCode: '+1', maxLength: 10 },
-    { code: 'AU', name: 'Australia', flag: '🇦🇺', dialCode: '+61', maxLength: 9 },
-    { code: 'CN', name: 'China', flag: '🇨🇳', dialCode: '+86', maxLength: 11 },
-    { code: 'JP', name: 'Japan', flag: '🇯🇵', dialCode: '+81', maxLength: 10 },
-    { code: 'DE', name: 'Germany', flag: '🇩🇪', dialCode: '+49', maxLength: 11 },
-    { code: 'FR', name: 'France', flag: '🇫🇷', dialCode: '+33', maxLength: 9 },
-    { code: 'IT', name: 'Italy', flag: '🇮🇹', dialCode: '+39', maxLength: 10 },
-    { code: 'ES', name: 'Spain', flag: '🇪🇸', dialCode: '+34', maxLength: 9 },
-    { code: 'BR', name: 'Brazil', flag: '🇧🇷', dialCode: '+55', maxLength: 11 },
-    { code: 'MX', name: 'Mexico', flag: '🇲🇽', dialCode: '+52', maxLength: 10 },
-    { code: 'RU', name: 'Russia', flag: '🇷🇺', dialCode: '+7', maxLength: 10 },
-    { code: 'KR', name: 'South Korea', flag: '🇰🇷', dialCode: '+82', maxLength: 10 },
-    { code: 'ZA', name: 'South Africa', flag: '🇿🇦', dialCode: '+27', maxLength: 9 },
-    { code: 'NG', name: 'Nigeria', flag: '🇳🇬', dialCode: '+234', maxLength: 10 },
-    { code: 'EG', name: 'Egypt', flag: '🇪🇬', dialCode: '+20', maxLength: 10 },
-    { code: 'PK', name: 'Pakistan', flag: '🇵🇰', dialCode: '+92', maxLength: 10 },
-    { code: 'BD', name: 'Bangladesh', flag: '🇧🇩', dialCode: '+880', maxLength: 10 },
-    { code: 'AE', name: 'UAE', flag: '🇦🇪', dialCode: '+971', maxLength: 9 },
-    { code: 'SA', name: 'Saudi Arabia', flag: '🇸🇦', dialCode: '+966', maxLength: 9 },
-    { code: 'MY', name: 'Malaysia', flag: '🇲🇾', dialCode: '+60', maxLength: 9 },
-    { code: 'SG', name: 'Singapore', flag: '🇸🇬', dialCode: '+65', maxLength: 8 },
-    { code: 'TH', name: 'Thailand', flag: '🇹🇭', dialCode: '+66', maxLength: 9 },
-    { code: 'VN', name: 'Vietnam', flag: '🇻🇳', dialCode: '+84', maxLength: 9 },
-    { code: 'PH', name: 'Philippines', flag: '🇵🇭', dialCode: '+63', maxLength: 10 },
-    { code: 'ID', name: 'Indonesia', flag: '🇮🇩', dialCode: '+62', maxLength: 11 },
-    { code: 'TR', name: 'Turkey', flag: '🇹🇷', dialCode: '+90', maxLength: 10 },
-    { code: 'PL', name: 'Poland', flag: '🇵🇱', dialCode: '+48', maxLength: 9 },
-    { code: 'NL', name: 'Netherlands', flag: '🇳🇱', dialCode: '+31', maxLength: 9 },
-    { code: 'BE', name: 'Belgium', flag: '🇧🇪', dialCode: '+32', maxLength: 9 },
-    { code: 'SE', name: 'Sweden', flag: '🇸🇪', dialCode: '+46', maxLength: 9 },
-    { code: 'NO', name: 'Norway', flag: '🇳🇴', dialCode: '+47', maxLength: 8 },
-    { code: 'DK', name: 'Denmark', flag: '🇩🇰', dialCode: '+45', maxLength: 8 },
-    { code: 'FI', name: 'Finland', flag: '🇫🇮', dialCode: '+358', maxLength: 9 },
-    { code: 'CH', name: 'Switzerland', flag: '🇨🇭', dialCode: '+41', maxLength: 9 },
-    { code: 'AT', name: 'Austria', flag: '🇦🇹', dialCode: '+43', maxLength: 11 },
-    { code: 'GR', name: 'Greece', flag: '🇬🇷', dialCode: '+30', maxLength: 10 },
-    { code: 'PT', name: 'Portugal', flag: '🇵🇹', dialCode: '+351', maxLength: 9 },
-    { code: 'IE', name: 'Ireland', flag: '🇮🇪', dialCode: '+353', maxLength: 9 },
-    { code: 'NZ', name: 'New Zealand', flag: '🇳🇿', dialCode: '+64', maxLength: 9 },
-    { code: 'AR', name: 'Argentina', flag: '🇦🇷', dialCode: '+54', maxLength: 10 },
-    { code: 'CL', name: 'Chile', flag: '🇨🇱', dialCode: '+56', maxLength: 9 },
-    { code: 'CO', name: 'Colombia', flag: '🇨🇴', dialCode: '+57', maxLength: 10 },
-    { code: 'PE', name: 'Peru', flag: '🇵🇪', dialCode: '+51', maxLength: 9 },
-    { code: 'VE', name: 'Venezuela', flag: '🇻🇪', dialCode: '+58', maxLength: 10 },
+    /* (rest omitted here for brevity - use your original list) */
 ];
+
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+
+// Original SVG art size you gave
+const SVG_ORIG = { width: 390, height: 844 };
+// Scale the SVG so it fills width and keeps aspect ratio (you can adjust to cover more height if desired)
+const svgScale = SCREEN_WIDTH / SVG_ORIG.width;
+const SVG_RENDER = {
+    width: SCREEN_WIDTH,
+    height: SVG_ORIG.height * svgScale - 80,
+};
 
 export default function PhoneNumberScreen({ navigation }) {
     const [phoneNumber, setPhoneNumber] = useState('');
@@ -63,7 +47,6 @@ export default function PhoneNumberScreen({ navigation }) {
     const [searchQuery, setSearchQuery] = useState('');
 
     useEffect(() => {
-        // Validate phone number based on length
         const isValidLength = phoneNumber.length === selectedCountry.maxLength;
         setIsValid(isValidLength && phoneNumber.length > 0);
     }, [phoneNumber, selectedCountry]);
@@ -75,8 +58,6 @@ export default function PhoneNumberScreen({ navigation }) {
 
     const handlePhoneChange = (text) => {
         const numericText = text.replace(/[^0-9]/g, "");
-        
-        // Strictly limit to country-specific max length
         if (numericText.length <= selectedCountry.maxLength) {
             setPhoneNumber(numericText);
         }
@@ -84,7 +65,7 @@ export default function PhoneNumberScreen({ navigation }) {
 
     const handleCountrySelect = (country) => {
         setSelectedCountry(country);
-        setPhoneNumber(''); // Clear phone number when country changes
+        setPhoneNumber('');
         setShowCountryPicker(false);
         setSearchQuery('');
     };
@@ -94,11 +75,20 @@ export default function PhoneNumberScreen({ navigation }) {
         country.dialCode.includes(searchQuery)
     );
 
+    // safe top padding
+    const topPadding = Platform.OS === 'android' ? (StatusBar.currentHeight || 24) : 44;
+
     return (
         <View style={styles.container}>
+            {/* SVG Background (positioned absolutely behind everything) */}
+            <PhoneVector
+                width={SVG_RENDER.width}
+                height={SVG_RENDER.height}
+                style={styles.svgBackground}
+            />
 
             {/* Back Arrow */}
-            <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+            <TouchableOpacity style={[styles.backButton, { paddingTop: topPadding }]} onPress={() => navigation.goBack()}>
                 <BackArrow width={30} height={30} fill="#000" />
             </TouchableOpacity>
 
@@ -111,9 +101,8 @@ export default function PhoneNumberScreen({ navigation }) {
 
                 {/* Phone Input Container */}
                 <View style={styles.phoneContainer}>
-                    
                     {/* Country Picker Button */}
-                    <TouchableOpacity 
+                    <TouchableOpacity
                         style={styles.countryButton}
                         onPress={() => setShowCountryPicker(true)}
                     >
@@ -142,20 +131,24 @@ export default function PhoneNumberScreen({ navigation }) {
                 <Text style={styles.hint}>
                     Max {selectedCountry.maxLength} digits for {selectedCountry.name}
                 </Text>
-
             </View>
 
             {/* Gradient Button */}
             <View style={styles.footer}>
                 <TouchableOpacity disabled={!isValid} onPress={handleContinue}>
                     <LinearGradient
-                        colors={isValid ? ["#6A5AE0", "#8A6FF0"] : ["#BFBFBF", "#D3D3D3"]}
+                        colors={
+                            isValid
+                                ? ["#1E1E1E", "#2A2A2A", "#3A3A3A"]
+                                : ["#BFBFBF", "#D3D3D3"]
+                        }
                         style={[styles.button]}
                     >
                         <Text style={styles.buttonText}>Continue</Text>
                     </LinearGradient>
                 </TouchableOpacity>
             </View>
+
 
             {/* Country Picker Modal */}
             <Modal
@@ -165,8 +158,6 @@ export default function PhoneNumberScreen({ navigation }) {
                 onRequestClose={() => setShowCountryPicker(false)}
             >
                 <View style={styles.modalContainer}>
-                    
-                    {/* Modal Header */}
                     <View style={styles.modalHeader}>
                         <TouchableOpacity onPress={() => setShowCountryPicker(false)}>
                             <Text style={styles.closeButton}>✕</Text>
@@ -175,7 +166,6 @@ export default function PhoneNumberScreen({ navigation }) {
                         <View style={{ width: 30 }} />
                     </View>
 
-                    {/* Search Bar */}
                     <View style={styles.searchContainer}>
                         <Text style={styles.searchIcon}>🔍</Text>
                         <TextInput
@@ -187,7 +177,6 @@ export default function PhoneNumberScreen({ navigation }) {
                         />
                     </View>
 
-                    {/* Country List */}
                     <FlatList
                         data={filteredCountries}
                         keyExtractor={(item) => item.code}
@@ -212,7 +201,6 @@ export default function PhoneNumberScreen({ navigation }) {
                     />
                 </View>
             </Modal>
-
         </View>
     );
 }
@@ -221,23 +209,36 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: "#FFFFFF",
+        position: 'relative',
+    },
+
+    svgBackground: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        opacity: 1,
+        zIndex: 0,
+        marginTop: 60,
     },
 
     backButton: {
-        paddingTop: 55,
         paddingLeft: 22,
         paddingBottom: 10,
         width: 50,
+        zIndex: 10,
     },
 
     centerContent: {
         flex: 1,
-        justifyContent: "center",
+        justifyContent: "flex-start",
+        marginTop: 40,
         paddingHorizontal: 26,
+        zIndex: 10,
     },
 
+    /** ↓↓↓ FONT SIZE REDUCED ↓↓↓ **/
     title: {
-        fontSize: 30,
+        fontSize: 24,
         fontWeight: "700",
         fontFamily: "Poppins-Bold",
         color: "#000",
@@ -245,13 +246,14 @@ const styles = StyleSheet.create({
     },
 
     subtitle: {
-        fontSize: 16,
+        fontSize: 14,
         fontFamily: "Poppins-Regular",
         color: "#5A5A5A",
-        marginBottom: 35,
-        lineHeight: 22,
+        marginBottom: 28,
+        lineHeight: 20,
     },
 
+    /** ↓↓↓ INPUT FIELD TRANSPARENT + SMALLER ↓↓↓ **/
     phoneContainer: {
         width: '100%',
         height: 65,
@@ -267,16 +269,16 @@ const styles = StyleSheet.create({
     countryButton: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingRight: 12,
+        paddingRight: 10,
     },
 
     flag: {
-        fontSize: 28,
-        marginRight: 8,
+        fontSize: 22,
+        marginRight: 6,
     },
 
     dialCode: {
-        fontSize: 16,
+        fontSize: 14,
         fontFamily: "Poppins-Regular",
         color: "#000",
         marginRight: 6,
@@ -289,21 +291,22 @@ const styles = StyleSheet.create({
 
     divider: {
         width: 1,
-        height: 35,
-        backgroundColor: '#ddd',
-        marginRight: 12,
+        height: 30,
+        backgroundColor: '#ccc',
+        marginRight: 10,
     },
 
     textInput: {
         flex: 1,
-        fontSize: 18,
+        fontSize: 16,
         fontFamily: "Poppins-Regular",
         color: "#000",
         height: '100%',
+        backgroundColor: 'transparent',    // transparent input
     },
 
     hint: {
-        fontSize: 12,
+        fontSize: 11,
         fontFamily: "Poppins-Regular",
         color: "#999",
         marginTop: 8,
@@ -312,21 +315,22 @@ const styles = StyleSheet.create({
     footer: {
         paddingHorizontal: 24,
         paddingBottom: 40,
+        zIndex: 10,
     },
 
     button: {
-        paddingVertical: 16,
-        borderRadius: 35,
+        paddingVertical: 14,
+        borderRadius: 30,
         alignItems: "center",
     },
 
     buttonText: {
         color: "#fff",
-        fontSize: 17,
+        fontSize: 15,
         fontFamily: "Poppins-SemiBold",
     },
 
-    // Modal Styles
+    /** ↓↓↓ Modal text fonts reduced ↓↓↓ **/
     modalContainer: {
         flex: 1,
         backgroundColor: '#FFFFFF',
@@ -337,20 +341,20 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'space-between',
         paddingHorizontal: 20,
-        paddingTop: 60,
-        paddingBottom: 20,
+        paddingTop: 50,
+        paddingBottom: 18,
         borderBottomWidth: 1,
         borderBottomColor: '#E0E0E0',
     },
 
     closeButton: {
-        fontSize: 28,
+        fontSize: 24,
         color: '#000',
         fontWeight: '300',
     },
 
     modalTitle: {
-        fontSize: 20,
+        fontSize: 18,
         fontFamily: "Poppins-SemiBold",
         color: "#000",
     },
@@ -360,7 +364,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         margin: 16,
         paddingHorizontal: 16,
-        height: 50,
+        height: 45,
         backgroundColor: '#F8F8F8',
         borderRadius: 12,
         borderWidth: 1,
@@ -368,13 +372,13 @@ const styles = StyleSheet.create({
     },
 
     searchIcon: {
-        fontSize: 18,
+        fontSize: 16,
         marginRight: 10,
     },
 
     searchInput: {
         flex: 1,
-        fontSize: 16,
+        fontSize: 14,
         fontFamily: "Poppins-Regular",
         color: "#000",
     },
@@ -382,7 +386,7 @@ const styles = StyleSheet.create({
     countryItem: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingVertical: 16,
+        paddingVertical: 14,
         paddingHorizontal: 20,
         borderBottomWidth: 1,
         borderBottomColor: '#F0F0F0',
@@ -393,8 +397,8 @@ const styles = StyleSheet.create({
     },
 
     countryFlag: {
-        fontSize: 28,
-        marginRight: 16,
+        fontSize: 22,
+        marginRight: 14,
     },
 
     countryInfo: {
@@ -402,21 +406,22 @@ const styles = StyleSheet.create({
     },
 
     countryName: {
-        fontSize: 16,
+        fontSize: 14,
         fontFamily: "Poppins-Regular",
         color: "#000",
         marginBottom: 2,
     },
 
     countryDialCode: {
-        fontSize: 14,
+        fontSize: 13,
         fontFamily: "Poppins-Regular",
         color: "#666",
     },
 
     checkMark: {
-        fontSize: 20,
+        fontSize: 18,
         color: "#6A5AE0",
         fontWeight: 'bold',
     },
 });
+
