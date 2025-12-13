@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import {
   View,
@@ -7,27 +6,42 @@ import {
   Image,
   StyleSheet,
   ScrollView,
+  Dimensions,
 } from 'react-native';
 
 import { launchImageLibrary } from 'react-native-image-picker';
 import BaseStepScreen from './BaseStepScreen';
 import GalleryAdd from '../../assets/icons/galleryadd.svg';
 
+/* 👉 BACKGROUND SVG */
+import PhotoUploadVector from '../../assets/vectors/photouploadvector.svg';
+
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
+
+/* ---- SVG ORIGINAL SIZE (match your SVG viewBox) ---- */
+const PHOTO_ORIGINAL = { width: 360, height: 470 };
+const photoScale = SCREEN_WIDTH / PHOTO_ORIGINAL.width;
+
+const PHOTO_SVG_RENDER = {
+  width: SCREEN_WIDTH,
+  height: PHOTO_ORIGINAL.height * photoScale,
+};
+
 export default function PhotoUploadScreen({ navigation }) {
   const [photos, setPhotos] = useState([null, null, null, null, null, null]);
   const [isValid, setIsValid] = useState(false);
 
-  // Validate number of uploaded photos
+  /* Validate number of uploaded photos */
   useEffect(() => {
     const uploaded = photos.filter((p) => p !== null).length;
     setIsValid(uploaded >= 3);
   }, [photos]);
 
-  // Pick image from gallery
+  /* Pick image */
   const pickImage = (index) => {
     launchImageLibrary(
       {
-        mediaType: "photo",
+        mediaType: 'photo',
         quality: 1,
         selectionLimit: 1,
       },
@@ -43,17 +57,16 @@ export default function PhotoUploadScreen({ navigation }) {
     );
   };
 
-  // Remove image
+  /* Remove image */
   const removePhoto = (index) => {
     const updated = [...photos];
     updated[index] = null;
     setPhotos(updated);
   };
 
-  // Next button
   const handleNext = () => {
     if (!isValid) return;
-    navigation.navigate("PlacesYouExploredScreen");
+    navigation.navigate('PlacesYouExploredScreen');
   };
 
   const uploaded = photos.filter((p) => p !== null).length;
@@ -64,10 +77,18 @@ export default function PhotoUploadScreen({ navigation }) {
       currentStep={4}
       totalSteps={7}
       title="Choose your photos"
-      subtitle={`Upload at least 3 photos (${uploaded}/3)`}
+      subtitle={`Upload at least 3 photos to get started`}
       onNext={handleNext}
       isButtonDisabled={!isValid}
     >
+      {/* 🔹 SVG BACKGROUND */}
+      <PhotoUploadVector
+        width={PHOTO_SVG_RENDER.width}
+        height={PHOTO_SVG_RENDER.height}
+        style={styles.svgBackground}
+      />
+
+      {/* 🔹 CONTENT */}
       <ScrollView contentContainerStyle={styles.grid}>
         {photos.map((item, index) => (
           <TouchableOpacity
@@ -90,7 +111,7 @@ export default function PhotoUploadScreen({ navigation }) {
             ) : (
               <View style={styles.placeholder}>
                 <View style={styles.iconCircle}>
-                  <GalleryAdd width={30} height={30} />
+                  <GalleryAdd width={28} height={28} />
                 </View>
                 <Text style={styles.addText}>Add Photo</Text>
               </View>
@@ -99,82 +120,97 @@ export default function PhotoUploadScreen({ navigation }) {
         ))}
       </ScrollView>
 
-      {!isValid && (
-        <Text style={styles.validationText}>
-          Upload {3 - uploaded} more photo{3 - uploaded > 1 ? "s" : ""}
-        </Text>
-      )}
     </BaseStepScreen>
   );
 }
 
-// --------------------------------------------------
-//                    STYLES
-// --------------------------------------------------
+/* --------------------------------------------------
+                    STYLES
+-------------------------------------------------- */
 const styles = StyleSheet.create({
-  grid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-between",
+  /* SVG background */
+  svgBackground: {
+    position: 'absolute',
+    top: 90,
+    left: 0,
+    zIndex: 0,
+    pointerEvents: 'none',
   },
+
+  grid: {
+    zIndex: 1,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    marginTop: 10,
+  },
+
   imageBox: {
-    width: "30%",
+    width: '30%',
     height: 120,
-    backgroundColor: "#F5F5F5",
+    backgroundColor: '#F5F5F5',
     borderRadius: 14,
     marginBottom: 16,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
   },
+
   placeholder: {
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
   },
+
   iconCircle: {
-    width: 50,
-    height: 50,
-    backgroundColor: "#EDEDED",
-    borderRadius: 25,
-    justifyContent: "center",
-    alignItems: "center",
+    width: 48,
+    height: 48,
+    backgroundColor: '#EDEDED',
+    borderRadius: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
     marginBottom: 6,
   },
+
   addText: {
     fontSize: 12,
-    fontWeight: "500",
-    color: "#777",
+    fontWeight: '500',
+    color: '#777',
   },
+
   imageContainer: {
-    width: "100%",
-    height: "100%",
-    position: "relative",
+    width: '100%',
+    height: '100%',
+    position: 'relative',
   },
+
   image: {
-    width: "100%",
-    height: "100%",
+    width: '100%',
+    height: '100%',
     borderRadius: 14,
   },
+
   removeButton: {
-    position: "absolute",
+    position: 'absolute',
     top: 4,
     right: 4,
     width: 24,
     height: 24,
-    backgroundColor: "rgba(0,0,0,0.6)",
+    backgroundColor: 'rgba(0,0,0,0.6)',
     borderRadius: 12,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
   },
+
   removeText: {
-    color: "#fff",
+    color: '#fff',
     fontSize: 14,
-    fontWeight: "bold",
+    fontWeight: 'bold',
   },
+
   validationText: {
-    textAlign: "center",
-    color: "#FF6B6B",
+    textAlign: 'center',
+    color: '#FF6B6B',
     fontSize: 14,
-    fontWeight: "500",
+    fontWeight: '500',
     marginTop: 10,
     marginBottom: 20,
   },

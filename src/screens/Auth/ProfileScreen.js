@@ -1,26 +1,51 @@
 // src/screens/Auth/ProfileScreen.js
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  ScrollView,
+  Dimensions,
+  Platform,
+  StatusBar,
+} from 'react-native';
+
 import LinearGradient from 'react-native-linear-gradient';
 import BackArrow from "../../assets/icons/backarrow.svg";
 import Stepper from '../../components/Stepper';
+
+// 🔹 SVG Background
+import ProfileBg from "../../assets/vectors/profilevector.svg";
+
+const { width: SCREEN_WIDTH } = Dimensions.get("window");
+
+// 🔹 ORIGINAL SVG SIZE (adjust to your actual SVG)
+const PROFILE_ORIGINAL = {
+  width: 270,
+  height: 450,
+};
+
+// 🔹 SCALE CALCULATION (same logic as OTP)
+const profileScale = SCREEN_WIDTH / PROFILE_ORIGINAL.width;
+
+const PROFILE_SVG_RENDER = {
+  width: SCREEN_WIDTH ,
+  height: PROFILE_ORIGINAL.height * profileScale,
+};
 
 export default function ProfileScreen({ navigation }) {
   const [firstName, setFirstName] = useState('');
   const [email, setEmail] = useState('');
 
-  // Error states
   const [firstNameError, setFirstNameError] = useState('');
   const [emailError, setEmailError] = useState('');
 
-  // -------------------------------
-  // VALIDATION LOGIC
-  // -------------------------------
   const validateInputs = () => {
     let valid = true;
 
-    // NAME VALIDATION
-    const nameRegex = /^[A-Za-z]{2,}$/;  // Only alphabets, minimum 2 letters
+    const nameRegex = /^[A-Za-z]{2,}$/;
 
     if (!firstName.trim()) {
       setFirstNameError("First name is required.");
@@ -29,13 +54,12 @@ export default function ProfileScreen({ navigation }) {
       setFirstNameError("First name must be at least 2 characters.");
       valid = false;
     } else if (!nameRegex.test(firstName)) {
-      setFirstNameError("Only alphabets allowed (A-Z). No numbers or symbols.");
+      setFirstNameError("Only alphabets allowed (A-Z).");
       valid = false;
     } else {
       setFirstNameError('');
     }
 
-    // EMAIL VALIDATION
     const emailRegex =
       /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[A-Za-z]{2,}$/;
 
@@ -43,7 +67,7 @@ export default function ProfileScreen({ navigation }) {
       setEmailError("Email is required.");
       valid = false;
     } else if (!emailRegex.test(email)) {
-      setEmailError("Please enter a valid email (example: name@email.com).");
+      setEmailError("Please enter a valid email.");
       valid = false;
     } else {
       setEmailError('');
@@ -54,30 +78,41 @@ export default function ProfileScreen({ navigation }) {
 
   const handleContinue = () => {
     if (validateInputs()) {
-      navigation.navigate("BirthdayScreen");
+      navigation.navigate("BirthdayScreen", { firstName });
     }
   };
 
   const handleFirstNameChange = (text) => {
-    // Remove spaces at start and only allow alphabets (A-Z, a-z)
     const cleanText = text.replace(/^\s+/g, "");
     const alphabetsOnly = cleanText.replace(/[^A-Za-z]/g, "");
-    
-    // Limit to 15 characters
     const limitedText = alphabetsOnly.slice(0, 15);
-    
+
     setFirstName(limitedText);
 
-    if (limitedText.trim().length >= 2) {
+    if (limitedText.length >= 2) {
       setFirstNameError('');
     }
   };
 
+  const topPadding = Platform.OS === "android"
+    ? (StatusBar.currentHeight || 24)
+    : 44;
+
   return (
     <View style={styles.container}>
 
+      {/* 🔹 SVG BACKGROUND (OTP STYLE) */}
+      <ProfileBg
+        width={PROFILE_SVG_RENDER.width}
+        height={PROFILE_SVG_RENDER.height}
+        style={styles.svgBackground}
+      />
+
       {/* Back Button */}
-      <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+      <TouchableOpacity
+        style={[styles.backButton, { paddingTop: topPadding }]}
+        onPress={() => navigation.goBack()}
+      >
         <BackArrow width={28} height={28} fill="#000" />
       </TouchableOpacity>
 
@@ -87,37 +122,32 @@ export default function ProfileScreen({ navigation }) {
       <ScrollView contentContainerStyle={styles.content}>
         <Text style={styles.title}>Tell us a bit about yourself</Text>
         <Text style={styles.subtitle}>
-          This will be displayed on your profile. You can change it later by contacting customer support.
+          This will be displayed on your profile. You can change it later by contacting customer service.
         </Text>
 
-        {/* FIRST NAME FIELD */}
+        {/* FIRST NAME */}
         <TextInput
-          style={[styles.input, firstNameError ? styles.errorBorder : null]}
+          style={[styles.input, firstNameError && styles.errorBorder]}
           placeholder="First Name"
           value={firstName}
           onChangeText={handleFirstNameChange}
           autoCapitalize="words"
-          maxLength={15}
         />
-        {firstNameError ? (
-          <Text style={styles.error}>{firstNameError}</Text>
-        ) : null}
+        {firstNameError && <Text style={styles.error}>{firstNameError}</Text>}
 
-        {/* EMAIL FIELD */}
+        {/* EMAIL */}
         <TextInput
-          style={[styles.input, emailError ? styles.errorBorder : null]}
+          style={[styles.input, emailError && styles.errorBorder]}
           placeholder="Email"
           value={email}
           onChangeText={(text) => {
             setEmail(text.trim());
-            if (emailError) setEmailError('');
+            setEmailError('');
           }}
           autoCapitalize="none"
           keyboardType="email-address"
         />
-        {emailError ? (
-          <Text style={styles.error}>{emailError}</Text>
-        ) : null}
+        {emailError && <Text style={styles.error}>{emailError}</Text>}
       </ScrollView>
 
       {/* Continue Button */}
@@ -141,26 +171,35 @@ export default function ProfileScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#fff" },
+  container: {
+    flex: 1,
+    backgroundColor: "#FFF",
+  },
+
+  /* 🔹 SVG BACKGROUND */
+  svgBackground: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    zIndex: 0,
+  },
 
   backButton: {
-    paddingTop: 50,
     paddingLeft: 22,
-    paddingBottom: 10,
     width: 50,
+    zIndex: 10,
   },
 
   content: {
     flexGrow: 1,
     paddingHorizontal: 26,
-    alignItems: "center",
     justifyContent: "center",
+    zIndex: 10,
   },
 
   title: {
     fontSize: 26,
     fontWeight: "700",
-    fontFamily: "Roboto",
     color: "#000",
     marginBottom: 10,
     textAlign: "center",
@@ -168,7 +207,6 @@ const styles = StyleSheet.create({
 
   subtitle: {
     fontSize: 15,
-    fontFamily: "Roboto",
     color: "#5A5A5A",
     textAlign: "center",
     marginBottom: 30,
@@ -183,7 +221,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 14,
     fontSize: 16,
-    fontFamily: "Roboto",
     marginBottom: 8,
     backgroundColor: "#fafafa",
   },
@@ -197,7 +234,6 @@ const styles = StyleSheet.create({
     color: "red",
     marginBottom: 10,
     fontSize: 13,
-    paddingLeft: 4,
   },
 
   footer: {
@@ -214,7 +250,6 @@ const styles = StyleSheet.create({
   buttonText: {
     color: "#fff",
     fontSize: 17,
-    fontFamily: "Roboto",
     fontWeight: "700",
   },
 });
