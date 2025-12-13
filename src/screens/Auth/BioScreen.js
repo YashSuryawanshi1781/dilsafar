@@ -1,3 +1,5 @@
+// src/screens/Auth/BioScreen.js
+
 import React, { useState } from "react";
 import {
   View,
@@ -7,10 +9,23 @@ import {
   Animated,
   Dimensions,
 } from "react-native";
+
 import BaseStepScreen from "./BaseStepScreen";
+
+/* 👉 BACKGROUND SVG */
+import BioVector from "../../assets/vectors/biovector.svg";
 import Celebration from "../../assets/images/celebration.svg";
 
-const { width } = Dimensions.get("window");
+const { width: SCREEN_WIDTH } = Dimensions.get("window");
+
+/* ---- SVG ORIGINAL SIZE (match biovector.svg viewBox) ---- */
+const BIO_ORIGINAL = { width: 300, height: 500 };
+const bioScale = SCREEN_WIDTH / BIO_ORIGINAL.width;
+
+const BIO_SVG_RENDER = {
+  width: SCREEN_WIDTH + 80,
+  height: BIO_ORIGINAL.height * bioScale - 40,
+};
 
 export default function BioScreen({ navigation }) {
   const [bio, setBio] = useState("");
@@ -18,7 +33,7 @@ export default function BioScreen({ navigation }) {
   const [showCongrats, setShowCongrats] = useState(false);
   const fadeAnim = useState(new Animated.Value(0))[0];
 
-  const MIN_LENGTH = 10; // **validation rule**
+  const MIN_LENGTH = 10;
 
   const validateBio = (text) => {
     setBio(text);
@@ -55,22 +70,35 @@ export default function BioScreen({ navigation }) {
       currentStep={7}
       totalSteps={7}
       title="Write a bio to introduce yourself"
-      subtitle="Be confident and introduce yourself to the community."
       onNext={handleFinish}
       nextText="Let's Start!"
-      nextDisabled={!!error || bio.trim().length < MIN_LENGTH} // **disable button**
+      nextDisabled={!!error || bio.trim().length < MIN_LENGTH}
     >
-      <TextInput
-        style={[styles.textArea, error ? { borderColor: "#FF6B6B" } : {}]}
-        placeholder="Don't be shy..."
-        placeholderTextColor="#B0A7BD"
-        multiline
-        value={bio}
-        onChangeText={validateBio}
+      {/* SVG BACKGROUND */}
+      <BioVector
+        width={BIO_SVG_RENDER.width}
+        height={BIO_SVG_RENDER.height}
+        style={styles.svgBackground}
       />
 
-      {error !== "" && <Text style={styles.errorText}>{error}</Text>}
+      {/* CONTENT */}
+      <View style={styles.content}>
+        <TextInput
+          style={[
+            styles.textArea,
+            error ? { borderColor: "#FF6B6B" } : {},
+          ]}
+          placeholder="Don't be shy..."
+          placeholderTextColor="#B0A7BD"
+          multiline
+          value={bio}
+          onChangeText={validateBio}
+        />
 
+        {error !== "" && <Text style={styles.errorText}>{error}</Text>}
+      </View>
+
+      {/* SUCCESS POPUP */}
       {showCongrats && (
         <Animated.View style={[styles.popupCard, { opacity: fadeAnim }]}>
           <Celebration width={70} height={70} style={{ marginBottom: 10 }} />
@@ -85,6 +113,20 @@ export default function BioScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
+  /* SVG background */
+  svgBackground: {
+    position: "absolute",
+    top: 80,
+    left: 0,
+    zIndex: 0,
+    pointerEvents: "none",
+  },
+
+  content: {
+    zIndex: 1,
+    width: "100%",
+  },
+
   textArea: {
     height: 180,
     backgroundColor: "#FAF8FF",
@@ -100,6 +142,8 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 3 },
     marginBottom: 10,
     width: "100%",
+    textAlignVertical: "top",
+
   },
 
   errorText: {
@@ -112,7 +156,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: "100%",
     alignSelf: "center",
-    width: width * 0.8,
+    width: SCREEN_WIDTH * 0.8,
     backgroundColor: "#ffffff",
     paddingVertical: 28,
     paddingHorizontal: 20,
@@ -122,6 +166,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.15,
     shadowRadius: 10,
     elevation: 10,
+    zIndex: 10,
   },
 
   popupTitle: {

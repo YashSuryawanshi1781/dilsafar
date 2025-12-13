@@ -9,9 +9,12 @@ import {
   StyleSheet,
   useWindowDimensions,
   FlatList,
+  Dimensions,
+
 } from "react-native";
 import BaseStepScreen from "./BaseStepScreen";
 import SearchIcon from "../../assets/icons/search.svg";
+import PlacesExploredVector from "../../assets/vectors/placesexploredvector.svg";
 
 // Local images
 import Gujarat from "../../assets/images/places/gujrat.jpg";
@@ -126,7 +129,16 @@ export default function PlacesYouExploredScreen({ navigation }) {
   };
 
   const handleNext = () => navigation.navigate("YourWishToTravelScreen");
+  const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
+  /* ---- SVG ORIGINAL SIZE (match biovector.svg viewBox) ---- */
+  const PLACES_ORIGINAL = { width: 300, height: 400 };
+  const placesScale = SCREEN_WIDTH / PLACES_ORIGINAL.width;
+
+  const PLACES_SVG_RENDER = {
+    width: SCREEN_WIDTH + 80,
+    height: PLACES_ORIGINAL.height * placesScale - 40,
+  };
   return (
     <BaseStepScreen
       navigation={navigation}
@@ -136,6 +148,11 @@ export default function PlacesYouExploredScreen({ navigation }) {
       subtitle="Pick places you've traveled to"
       onNext={handleNext}
     >
+      <PlacesExploredVector
+        width={PLACES_SVG_RENDER.width}
+        height={PLACES_SVG_RENDER.height}
+        style={styles.svgBackground} />
+
       {/* Search Box */}
       <View style={styles.searchContainer}>
         <SearchIcon width={18} height={18} />
@@ -226,6 +243,13 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     marginBottom: 20,
     width: "100%",
+  },
+  svgBackground: {
+    position: "absolute",
+    top: 80,
+    left: 0,
+    zIndex: 0,
+    pointerEvents: "none",
   },
   searchInput: { flex: 1, fontSize: 15, marginLeft: 8, color: "#000" },
   suggestionsContainer: {

@@ -20,7 +20,7 @@ import OTPVector from "../../assets/vectors/otpvector.svg";
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 // Original SVG size
-const OTP_ORIGINAL = { width: 390, height: 420 };
+const OTP_ORIGINAL = { width: 350, height: 480 };
 const otpScale = SCREEN_WIDTH / OTP_ORIGINAL.width;
 const OTP_SVG_RENDER = {
   width: SCREEN_WIDTH,
