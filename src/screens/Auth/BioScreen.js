@@ -47,31 +47,23 @@ export default function BioScreen({ navigation }) {
     }
   };
 
-  const handleFinish = () => {
+  const handleNext = () => {
     if (error || bio.trim().length < MIN_LENGTH) {
       setError(`Please write at least ${MIN_LENGTH} characters.`);
       return;
     }
 
-    setShowCongrats(true);
-
-    Animated.timing(fadeAnim, {
-      toValue: 1,
-      duration: 350,
-      useNativeDriver: true,
-    }).start();
-
-    setTimeout(() => navigation.replace("MainApp"), 2000);
+    navigation.navigate("CareerCompassScreen");
   };
 
   return (
     <BaseStepScreen
       navigation={navigation}
       currentStep={7}
-      totalSteps={7}
+      totalSteps={12}
       title="Write a bio to introduce yourself"
-      onNext={handleFinish}
-      nextText="Let's Start!"
+      onNext={handleNext}
+      nextText="Next"
       nextDisabled={!!error || bio.trim().length < MIN_LENGTH}
     >
       {/* SVG BACKGROUND */}

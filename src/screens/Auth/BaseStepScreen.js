@@ -59,8 +59,9 @@ export default function BaseStepScreen({
                 isButtonDisabled && styles.disabledText,
               ]}
             >
-              Next
+              {nextText}
             </Text>
+
           </LinearGradient>
         </TouchableOpacity>
       </View>

@@ -103,7 +103,7 @@ export default function YourWishToTravelScreen({ navigation }) {
   };
 
   const handleNext = () => {
-    navigation.navigate("BioScreen");
+    navigation.navigate("TravelStyleScreen");
   };
 
   const filtered = places.filter((item) =>

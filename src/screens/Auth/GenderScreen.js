@@ -30,7 +30,7 @@ export default function GenderScreen({ navigation }) {
   const [selected, setSelected] = useState('man');
 
   const handleNext = () => {
-    navigation.navigate('PhotoUploadScreen');
+    navigation.navigate('FaceScanScreen');
   };
 
   return (

@@ -46,14 +46,16 @@ export default function BirthdayScreen({ route, navigation }) {
   };
 
   const handleContinue = () => {
-    navigation.navigate('GenderScreen');
+    navigation.navigate('PurposeSelection');
   };
+
 
   const day = selected ? date.getDate().toString().padStart(2, '0') : '';
   const month = selected ? (date.getMonth() + 1).toString().padStart(2, '0') : '';
   const year = selected ? date.getFullYear().toString() : '';
 
   const topPadding =
+  
     Platform.OS === 'android'
       ? StatusBar.currentHeight || 24
       : 44;
@@ -192,14 +194,14 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#000',
     marginBottom: 6,
-    textAlign: 'left', 
+    textAlign: 'left',
   },
 
   smallText: {
     fontSize: 14,
     color: '#888',
     marginBottom: 30,
-    textAlign: 'left', 
+    textAlign: 'left',
   },
 
 
@@ -241,13 +243,13 @@ const styles = StyleSheet.create({
     marginTop: 50,
     flexDirection: 'row',
     alignItems: 'center',
-    alignSelf: 'center', 
+    alignSelf: 'center',
   },
 
   footerText: {
     fontSize: 13,
     color: '#444',
-    textAlign: 'center', 
+    textAlign: 'center',
   },
 
 

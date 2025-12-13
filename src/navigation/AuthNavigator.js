@@ -15,6 +15,12 @@ import EditProfileScreen from '../screens/Auth/EditProfileScreen';
 import UserDetailScreen from '../screens/Auth/UserDetailScreen';
 import FilterScreen from '../screens/Auth/FilterScreen/FilterScreen'
 import ChatScreenpersonal from '../screens/Auth/ChatScreenpersonal'
+import PurposeSelectionScreen from '../screens/Auth/PurposeSelectionScreen'
+import FaceScreen from '../screens/Auth/FaceScanScreen'
+import TravelStyleScreen from '../screens/Auth/TravelStyleScreen'
+import CosmicConnectionsScreen from '../screens/Auth/CosmicConnectionsScreen'
+import CareerCompassScreen from '../screens/Auth/CareerCompassScreen'
+import SettingsScreen from '../screens/Auth/SettingsScreen'
 const Stack = createStackNavigator();
 
 export default function AuthNavigator() {
@@ -26,11 +32,21 @@ export default function AuthNavigator() {
       <Stack.Screen name="OTP" component={OTPScreen} />
       <Stack.Screen name="ProfileScreen" component={ProfileScreen} />
       <Stack.Screen name="BirthdayScreen" component={BirthdayScreen} />
+      <Stack.Screen name="PurposeSelection" component={PurposeSelectionScreen} />
       <Stack.Screen name="GenderScreen" component={GenderScreen} />
+      <Stack.Screen name="FaceScanScreen" component={FaceScreen} />
       <Stack.Screen name="PhotoUploadScreen" component={PhotoUploadScreen} />
       <Stack.Screen name="PlacesYouExploredScreen" component={PlacesYouExploredScreen} />
       <Stack.Screen name="YourWishToTravelScreen" component={YourWishToTravelScreen} />
+      <Stack.Screen name="TravelStyleScreen" component={TravelStyleScreen} />
+      <Stack.Screen name="CosmicConnectionsScreen" component={CosmicConnectionsScreen} />
+      <Stack.Screen name="CareerCompassScreen" component={CareerCompassScreen} />
       <Stack.Screen name="BioScreen" component={BioScreen} />
+      <Stack.Screen
+        name="SettingsScreen"
+        component={SettingsScreen}
+        options={{ headerShown: false }}
+      />
 
       {/* Main App with Bottom Tabs */}
       <Stack.Screen name="MainApp" component={BottomTabs} />

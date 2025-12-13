@@ -96,7 +96,10 @@ export default function MyProfileScreen({ navigation }) {
                     style={styles.logoImage}
                     resizeMode="contain"
                 />
-                <TouchableOpacity style={styles.settingsIconWrapper}>
+                <TouchableOpacity
+                    style={styles.settingsIconWrapper}
+                    onPress={() => navigation.navigate("SettingsScreen")}
+                >
                     <SettingsIcon width={40} height={40} fill="#fff" />
                 </TouchableOpacity>
             </LinearGradient>
